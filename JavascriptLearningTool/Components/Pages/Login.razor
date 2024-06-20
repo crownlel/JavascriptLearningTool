@@ -1,0 +1,82 @@
+﻿@page "/login"
+@using JavascriptLearningTool.Services
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@rendermode InteractiveServer
+@inject NavigationManager Navigation
+@inject UserService UserService
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">Login</h3>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@ErrorMessage</div>
+                    }
+                    <EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Login</button>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    private LoginModel loginModel = new LoginModel();
+    private string? ErrorMessage;
+
+    private async Task HandleValidSubmit()
+    {
+
+        // Simple username and password check
+        if (loginModel.Username == "admin" && loginModel.Password == "password")
+        {
+            UserService.SetUser(new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Name, loginModel.Username),
+                new Claim(ClaimTypes.Role, "User"),
+            })));
+
+
+            UserService.IsLoggedIn = true;
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            ErrorMessage = "Invalid username or password";
+        }
+    }
+
+    public class LoginModel
+    {
+        public string? Username { get; set; }
+
+        public string? Password { get; set; }
+    }
+}

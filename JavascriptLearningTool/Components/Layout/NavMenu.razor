@@ -1,4 +1,7 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using JavascriptLearningTool.Services
+@inject UserService UserState
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">JavascriptLearningTool</a>
     </div>
@@ -8,19 +11,25 @@
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
-        <div class="nav-item px-3">
+        <div class="nav-item px-3" style="@GetLoggedInDisplay()">
+            <NavLink class="nav-link" href="login">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3" style="@GetLoggedOutDisplay()">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
+        <div class="nav-item px-3" style="@GetLoggedOutDisplay()">
             <NavLink class="nav-link" href="counter">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
+        <div class="nav-item px-3" style="@GetLoggedOutDisplay()">
             <NavLink class="nav-link" href="weather">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
             </NavLink>
@@ -28,3 +37,20 @@
     </nav>
 </div>
 
+@code{
+    
+    private string GetLoggedInDisplay() => UserState.IsLoggedIn ? "display: none;" : "display: block;";
+    private string GetLoggedOutDisplay() => !UserState.IsLoggedIn ? "display: none;" : "display: block;";
+
+    protected override void OnInitialized()
+    {
+        UserState.OnChange += SetLoginStatus;
+        base.OnInitialized();
+    }
+
+    private async void SetLoginStatus(bool loginState)
+    {
+        await InvokeAsync(StateHasChanged);
+    } 
+        
+}

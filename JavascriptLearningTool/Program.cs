@@ -12,6 +12,8 @@ namespace JavascriptLearningTool
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
+            RegisterServices(builder.Services);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -31,6 +33,12 @@ namespace JavascriptLearningTool
                 .AddInteractiveServerRenderMode();
 
             app.Run();
+        }
+
+        private static void RegisterServices(IServiceCollection services)
+        {
+
+            services.AddScoped<UserService>();
         }
     }
 }

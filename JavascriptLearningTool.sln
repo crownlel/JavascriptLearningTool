@@ -3,9 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptLearningTool", "JavascriptLearningTool\JavascriptLearningTool\JavascriptLearningTool.csproj", "{AB2B2E41-D0EE-49CB-B465-C692C9EBE2D0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptLearningTool.Client", "JavascriptLearningTool\JavascriptLearningTool.Client\JavascriptLearningTool.Client.csproj", "{B7411B9E-80D0-4B47-A440-78A667650B21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavascriptLearningTool", "JavascriptLearningTool\JavascriptLearningTool.csproj", "{35AFFB3F-AC5A-4552-9E9E-E4E89805FD28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,19 +11,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AB2B2E41-D0EE-49CB-B465-C692C9EBE2D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AB2B2E41-D0EE-49CB-B465-C692C9EBE2D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AB2B2E41-D0EE-49CB-B465-C692C9EBE2D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB2B2E41-D0EE-49CB-B465-C692C9EBE2D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B7411B9E-80D0-4B47-A440-78A667650B21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7411B9E-80D0-4B47-A440-78A667650B21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B7411B9E-80D0-4B47-A440-78A667650B21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7411B9E-80D0-4B47-A440-78A667650B21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35AFFB3F-AC5A-4552-9E9E-E4E89805FD28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35AFFB3F-AC5A-4552-9E9E-E4E89805FD28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35AFFB3F-AC5A-4552-9E9E-E4E89805FD28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35AFFB3F-AC5A-4552-9E9E-E4E89805FD28}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {59FF8A8F-B6A5-4AB3-8F8F-F882AD04AF16}
+		SolutionGuid = {7D71B756-6889-497C-AB6B-42EC1D13DC0C}
 	EndGlobalSection
 EndGlobal

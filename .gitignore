@@ -1,5 +1,3 @@
 ﻿.vs
-JavascriptLearningTool/JavascriptLearningTool/bin
-JavascriptLearningTool/JavascriptLearningTool/obj
-JavascriptLearningTool/JavascriptLearningTool.Client/bin
-JavascriptLearningTool/JavascriptLearningTool.Client/obj
+JavascriptLearningTool/obj
+JavascriptLearningTool/bin

@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using JavascriptLearningTool.Helpers;
 using JavascriptLearningTool.Models;
 using System.Data;
+using System.Reflection;
 
 namespace JavascriptLearningTool.Repositories
 {
@@ -15,17 +17,24 @@ namespace JavascriptLearningTool.Repositories
 
         public async Task<User?> GetUser(string username, string password)
         {
-            _dbConnection.Open();
-            var result = await _dbConnection.QueryAsync("SELECT * FROM users");
-            if (username == "admin" && password == "password")
+            try
             {
-                return new User
+                _dbConnection.Open();
+                var hashedPassword = HashedPasswordManager.HashPassword(password);
+                var user = await _dbConnection.QueryFirstOrDefaultAsync<User>("SELECT * FROM users WHERE username = @Username",
+                    new { Username = username });
+
+                if (user != null && HashedPasswordManager.VerifyHashedPassword(user.Password, password))
                 {
-                    Username = username,
-                    Password = password
-                };
+                    return user;
+                }
+
+                return null;
             }
-            return null;
+            finally
+            {
+                _dbConnection.Close();
+            }
         }
     }
 }

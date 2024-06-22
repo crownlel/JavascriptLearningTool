@@ -1,13 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using JavascriptLearningTool.Services
+@inherits LayoutComponentBase
 
-<AuthorizeView>
-    <Authorized>
-        Hello, @context.User.Identity?.Name!
-    </Authorized>
-    <NotAuthorized>
-        Hello, Anonymous
-    </NotAuthorized>
-</AuthorizeView>
 <div class="page">
     <div class="sidebar">
         <NavMenu />

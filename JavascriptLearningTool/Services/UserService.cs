@@ -1,93 +1,31 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using JavascriptLearningTool.Repositories;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Server.Circuits;
 
 namespace JavascriptLearningTool.Services
 {
     public class UserService
     {
-        private bool isLoggedIn;
+        private ClaimsPrincipal _currentUser = new(new ClaimsIdentity());
 
-        public bool IsLoggedIn 
-        { 
-            get => isLoggedIn; 
-            set 
-            { 
-                var oldValue = isLoggedIn;
-                isLoggedIn = value; 
-                if (oldValue != value) OnChange?.Invoke(value);
-            } 
-        }
+        public bool IsLoggedIn => _currentUser.Identity?.IsAuthenticated ?? false;
 
-        public event Action<bool> OnChange;
+        public event Action<bool>? OnChange;
 
-        private ClaimsPrincipal currentUser = new(new ClaimsIdentity());
-
-        public ClaimsPrincipal GetUser()
+        public ClaimsPrincipal User
         {
-            return currentUser;
-        }
-
-        internal void SetUser(ClaimsPrincipal user)
-        {
-            if (currentUser != user)
+            get => _currentUser;
+            set
             {
-                currentUser = user;
-            }
-        }
-    }
-
-    internal sealed class UserCircuitHandler : CircuitHandler, IDisposable
-    {
-        private readonly AuthenticationStateProvider authenticationStateProvider;
-        private readonly UserService userService;
-
-        public UserCircuitHandler(
-            AuthenticationStateProvider authenticationStateProvider,
-            UserService userService)
-        {
-            this.authenticationStateProvider = authenticationStateProvider;
-            this.userService = userService;
-        }
-
-        public override Task OnCircuitOpenedAsync(Circuit circuit,
-            CancellationToken cancellationToken)
-        {
-            authenticationStateProvider.AuthenticationStateChanged +=
-                AuthenticationChanged;
-
-            return base.OnCircuitOpenedAsync(circuit, cancellationToken);
-        }
-
-        private void AuthenticationChanged(Task<AuthenticationState> task)
-        {
-            _ = UpdateAuthentication(task);
-
-            async Task UpdateAuthentication(Task<AuthenticationState> task)
-            {
-                try
+                if (_currentUser != value)
                 {
-                    var state = await task;
-                    userService.SetUser(state.User);
-                }
-                catch
-                {
+                    var oldLoginState = IsLoggedIn;
+                    _currentUser = value;
+                    if (oldLoginState != IsLoggedIn)
+                    {
+                        OnChange?.Invoke(IsLoggedIn); 
+                    }
                 }
             }
-        }
-
-        public override async Task OnConnectionUpAsync(Circuit circuit,
-            CancellationToken cancellationToken)
-        {
-            var state = await authenticationStateProvider.GetAuthenticationStateAsync();
-            userService.SetUser(state.User);
-        }
-
-        public void Dispose()
-        {
-            authenticationStateProvider.AuthenticationStateChanged -=
-                AuthenticationChanged;
         }
     }
 }

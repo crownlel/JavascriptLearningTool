@@ -5,8 +5,9 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject NavigationManager Navigation
 @inject UserService UserService
+@inject NavigationManager Navigation
+@inject UserAuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
 
@@ -53,18 +54,11 @@
 
     private async Task HandleValidSubmit()
     {
+        await AuthenticationStateProvider.LoginAsync(loginModel.Username, loginModel.Password);
 
         // Simple username and password check
-        if (loginModel.Username == "admin" && loginModel.Password == "password")
+        if (UserService.IsLoggedIn)
         {
-            UserService.SetUser(new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.Name, loginModel.Username),
-                new Claim(ClaimTypes.Role, "User"),
-            })));
-
-
-            UserService.IsLoggedIn = true;
             Navigation.NavigateTo("/");
         }
         else

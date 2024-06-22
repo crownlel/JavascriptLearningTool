@@ -4,6 +4,6 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, @(UserService.GetUser().Identity?.Name ?? "world")!</h1>
+<h1>Hello, @(UserService.User.Identity?.Name ?? "world")!</h1>
 
 Welcome to your new app.

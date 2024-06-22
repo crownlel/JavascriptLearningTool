@@ -1,4 +1,7 @@
 using JavascriptLearningTool.Components;
+using JavascriptLearningTool.Repositories;
+using JavascriptLearningTool.Services;
+using Microsoft.AspNetCore.Components.Authorization;
 
 namespace JavascriptLearningTool
 {
@@ -38,7 +41,13 @@ namespace JavascriptLearningTool
         private static void RegisterServices(IServiceCollection services)
         {
 
-            services.AddScoped<UserService>();
+            services.AddSingleton<UserService>();
+            services.AddSingleton<UserRepository>();
+            services.AddScoped<UserAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
+
+            services.AddCascadingAuthenticationState();
+            services.AddAuthorizationCore();
         }
     }
 }

@@ -2,6 +2,8 @@ using JavascriptLearningTool.Components;
 using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Data.Sqlite;
+using System.Data;
 
 namespace JavascriptLearningTool
 {
@@ -15,7 +17,7 @@ namespace JavascriptLearningTool
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            RegisterServices(builder.Services);
+            RegisterServices(builder.Services, builder.Configuration);
 
             var app = builder.Build();
 
@@ -38,16 +40,18 @@ namespace JavascriptLearningTool
             app.Run();
         }
 
-        private static void RegisterServices(IServiceCollection services)
+        private static void RegisterServices(IServiceCollection services, IConfigurationManager configurationManager)
         {
 
             services.AddSingleton<UserService>();
-            services.AddSingleton<UserRepository>();
+            services.AddScoped<UserRepository>();
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
 
             services.AddCascadingAuthenticationState();
             services.AddAuthorizationCore();
+
+            services.AddScoped<IDbConnection>(sp => new SqliteConnection(configurationManager.GetConnectionString("DefaultConnection")));
         }
     }
 }

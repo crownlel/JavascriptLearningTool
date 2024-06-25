@@ -2,6 +2,7 @@ using JavascriptLearningTool.Components;
 using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using System.Data;
 
@@ -44,6 +45,8 @@ namespace JavascriptLearningTool
         {
 
             services.AddSingleton<UserService>();
+            services.AddSingleton<DbConnectionFactory>();
+            services.AddScoped<UserProgressRepository>();
             services.AddScoped<UserRepository>();
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
@@ -51,7 +54,8 @@ namespace JavascriptLearningTool
             services.AddCascadingAuthenticationState();
             services.AddAuthorizationCore();
 
-            services.AddScoped<IDbConnection>(sp => new SqliteConnection(configurationManager.GetConnectionString("DefaultConnection")));
+            services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));
+            
         }
     }
 }

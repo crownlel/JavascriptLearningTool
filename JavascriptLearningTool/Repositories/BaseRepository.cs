@@ -4,9 +4,9 @@ namespace JavascriptLearningTool.Repositories
 {
     public abstract class BaseRepository
     {
-        private protected readonly DBConnectionFactory _connectionFactory;
+        private protected readonly DbConnectionFactory _connectionFactory;
 
-        public BaseRepository(DBConnectionFactory connectionFactory)
+        public BaseRepository(DbConnectionFactory connectionFactory)
         {
             _connectionFactory = connectionFactory;
         }

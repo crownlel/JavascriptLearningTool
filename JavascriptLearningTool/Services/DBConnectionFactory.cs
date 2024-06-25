@@ -1,13 +1,12 @@
-﻿using JavascriptLearningTool.Repositories;
-using System.Data;
+﻿using System.Data;
 
 namespace JavascriptLearningTool.Services
 {
-    public class DBConnectionFactory
+    public class DbConnectionFactory
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public DBConnectionFactory(IServiceProvider serviceProvider)
+        public DbConnectionFactory(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

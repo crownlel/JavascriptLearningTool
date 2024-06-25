@@ -1,0 +1,41 @@
+﻿@page "/courses"
+@using JavascriptLearningTool.Models
+@using JavascriptLearningTool.Repositories
+@using JavascriptLearningTool.Components.Layout
+@attribute [StreamRendering]
+@inject CourseRepository CourseRepository
+
+
+<PageTitle>Courses</PageTitle>
+<h3>Courses</h3>
+@if (CurrentCourses == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+   <div class="row">
+        @foreach (var course in CurrentCourses)
+    {
+        <div class="col-md-4 mb-3">
+            <CourseCard Course="course" />
+        </div>
+    }
+</div>
+}
+
+@code {
+    private Course[]? CurrentCourses;
+    // new List<Course>
+    // {
+    //     new Course { Id = 1, Name = "Introduction to Blazor", Description = "Learn the basics of Blazor framework.", CurrentPage = 5, Pages = 30 },
+    //     new Course { Id = 2, Name = "Advanced C# Programming", Description = "Explore advanced concepts in C#.", CurrentPage = 10, Pages = 50 }
+    //     // Add more courses as needed
+    // };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var courses = await CourseRepository.GetAllCoursesAsync();
+        CurrentCourses = courses.ToArray();
+    }
+}

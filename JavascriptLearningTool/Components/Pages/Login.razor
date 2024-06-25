@@ -51,6 +51,17 @@
     private LoginModel loginModel = new LoginModel();
     private string? ErrorMessage;
 
+    protected override async Task OnInitializedAsync()
+    {
+        if (System.Diagnostics.Debugger.IsAttached)
+        {
+            loginModel.Username = "admin";
+            loginModel.Password = "password";
+            await HandleValidSubmit();
+        }
+        await  base.OnInitializedAsync();
+    }
+
     private async Task HandleValidSubmit()
     {
         await UserService.LoginAsync(loginModel.Username, loginModel.Password);

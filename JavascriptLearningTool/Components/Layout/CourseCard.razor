@@ -1,0 +1,22 @@
+﻿@using JavascriptLearningTool.Models
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">@Course.Name</h5>
+        <h6 class="card-subtitle mb-2 text-muted">ID: @Course.Id</h6>
+        <p class="card-text">@Course.Description</p>
+        <div class="row">
+            <div class="col">
+                <p class="card-text"><strong>Current Page:</strong> @Course.CurrentPage</p>
+            </div>
+            <div class="col">
+                <p class="card-text"><strong>Total Pages:</strong> @Course.Pages</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Course Course { get; set; }
+}

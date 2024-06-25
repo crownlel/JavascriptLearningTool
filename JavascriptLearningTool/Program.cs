@@ -47,8 +47,9 @@ namespace JavascriptLearningTool
             services.AddScoped<UserService>();
 
             // Repositories
-            services.AddScoped<UserProgressRepository>();
             services.AddScoped<UserRepository>();
+            services.AddScoped<CourseRepository>();
+            services.AddScoped<UserProgressRepository>();
 
             // Database
             services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));

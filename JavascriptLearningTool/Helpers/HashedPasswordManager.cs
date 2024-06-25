@@ -28,7 +28,7 @@ namespace JavascriptLearningTool.Helpers
             return Convert.ToBase64String(dst);
         }
 
-        public static bool VerifyHashedPassword(string hashedPassword, string password)
+        public static bool VerifyHashedPassword(string? hashedPassword, string password)
         {
             byte[] buffer4;
             if (hashedPassword == null)

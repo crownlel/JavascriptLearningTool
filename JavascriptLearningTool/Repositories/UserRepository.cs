@@ -1,40 +1,32 @@
 ﻿using Dapper;
 using JavascriptLearningTool.Helpers;
 using JavascriptLearningTool.Models;
+using JavascriptLearningTool.Services;
 using System.Data;
 using System.Reflection;
 
 namespace JavascriptLearningTool.Repositories
 {
-    public class UserRepository
+    public class UserRepository : BaseRepository
     {
-        private readonly IDbConnection _dbConnection;
 
-        public UserRepository(IDbConnection dbConnection)
+        public UserRepository(DBConnectionFactory conFactory) : base(conFactory)
         {
-            _dbConnection = dbConnection;
         }
 
         public async Task<User?> GetUser(string username, string password)
         {
-            try
-            {
-                _dbConnection.Open();
-                var hashedPassword = HashedPasswordManager.HashPassword(password);
-                var user = await _dbConnection.QueryFirstOrDefaultAsync<User>("SELECT * FROM users WHERE username = @Username",
-                    new { Username = username });
+            using var con = _connectionFactory.OpenConnection();
 
-                if (user != null && HashedPasswordManager.VerifyHashedPassword(user.Password, password))
-                {
-                    return user;
-                }
+            var user = await con.QueryFirstOrDefaultAsync<User>("SELECT * FROM users WHERE username = @Username",
+                new { Username = username });
 
-                return null;
-            }
-            finally
+            if (HashedPasswordManager.VerifyHashedPassword(user?.Password, password))
             {
-                _dbConnection.Close();
+                return user;
             }
+
+            return null;
         }
     }
 }

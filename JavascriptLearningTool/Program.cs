@@ -43,19 +43,22 @@ namespace JavascriptLearningTool
 
         private static void RegisterServices(IServiceCollection services, IConfigurationManager configurationManager)
         {
+            // Services
+            services.AddScoped<UserService>();
 
-            services.AddSingleton<UserService>();
-            services.AddSingleton<DbConnectionFactory>();
+            // Repositories
             services.AddScoped<UserProgressRepository>();
             services.AddScoped<UserRepository>();
+
+            // Database
+            services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));
+            services.AddSingleton<DbConnectionFactory>();
+
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
 
             services.AddCascadingAuthenticationState();
             services.AddAuthorizationCore();
-
-            services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));
-            
         }
     }
 }

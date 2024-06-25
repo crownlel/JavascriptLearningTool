@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 @using JavascriptLearningTool.Services
 @inject UserService UserService
-@inject UserAuthenticationStateProvider UserAuthenticationStateProvider
 @inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
@@ -26,9 +25,9 @@ Welcome to your new app.
 
     }
 
-    private async Task Logout()
+    private void Logout()
     {
-        await UserAuthenticationStateProvider.LogoutAsync();
+        UserService.Logout();
         Navigation.NavigateTo("login");
     }
 }

@@ -7,13 +7,13 @@ namespace JavascriptLearningTool.Models
     public class User
     {
         public int Id { get; set; }
-        public string Username { get; set; }
+        public required string Username { get; set; }
         public string Password { get; set; }
 
         public ClaimsPrincipal ToClaimsPrincipal() => new(new ClaimsIdentity(
         [
             new (ClaimTypes.Name, Username),
-            //new (ClaimTypes.Hash, Password),
+            new (ClaimTypes.Hash, Password),
             //new (ClaimTypes.Role, "user")
         ], "apiauth_type"));
 

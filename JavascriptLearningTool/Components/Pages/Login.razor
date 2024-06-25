@@ -5,9 +5,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using System.Security.Claims
 @rendermode InteractiveServer
-@inject UserService UserService
 @inject NavigationManager Navigation
-@inject UserAuthenticationStateProvider AuthenticationStateProvider
+@inject UserService UserService
 
 <PageTitle>Login</PageTitle>
 
@@ -54,7 +53,7 @@
 
     private async Task HandleValidSubmit()
     {
-        await AuthenticationStateProvider.LoginAsync(loginModel.Username, loginModel.Password);
+        await UserService.LoginAsync(loginModel.Username, loginModel.Password);
 
         // Simple username and password check
         if (UserService.IsLoggedIn)

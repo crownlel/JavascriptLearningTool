@@ -15,26 +15,18 @@ namespace JavascriptLearningTool.Repositories
         {
         }
 
-        public async Task<User?> GetUser(string username, string password)
-        {
-            using var con = _connectionFactory.OpenConnection();
-
-            var user = await con.QueryFirstOrDefaultAsync<User>("SELECT * FROM users WHERE Username = @Username",
-                new { Username = username });
-
-            if (HashedPasswordManager.VerifyHashedPassword(user?.Password, password))
-            {
-                return user;
-            }
-
-            return null;
-        }
-
         public async Task<User?> GetUserByIdAsync(int id)
         {
             var connection = _connectionFactory.OpenConnection();
             var sql = "SELECT * FROM Users WHERE Id = @Id";
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Id = id });
+        }
+
+        public async Task<User?> GetUserByUsernameAsync(string username)
+        {
+            var connection = _connectionFactory.OpenConnection();
+            var sql = "SELECT * FROM Users WHERE Username = @Username";
+            return await connection.QuerySingleOrDefaultAsync<User>(sql, new { Username = username });
         }
 
         public async Task<IEnumerable<User>> GetAllUsersAsync()

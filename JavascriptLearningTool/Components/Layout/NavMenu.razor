@@ -1,5 +1,4 @@
 ﻿@using JavascriptLearningTool.Services
-@inject UserService UserState
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -41,19 +40,3 @@
         </AuthorizeView>
     </nav>
 </div>
-
-@code{
-    
-
-    protected override void OnInitialized()
-    {
-        UserState.OnChange += SetLoginStatus;
-        base.OnInitialized();
-    }
-
-    private async void SetLoginStatus(bool loginState)
-    {
-        await InvokeAsync(StateHasChanged);
-    } 
-        
-}

@@ -22,8 +22,8 @@
     [Parameter]
     public Course Course { get; set; }
 
-    [Parameter]
-    public EventCallback<Course> OnCourseSelected { get; set; }
+    // [Parameter]
+    // public EventCallback<Course> OnCourseSelected { get; set; }
 
     [Inject]
     public NavigationManager NavigationManager { get; set; }
@@ -31,6 +31,6 @@
     private void NavigateToCourseDetails()
     {
         // Navigate to a new page and pass parameters in the URL
-        //NavigationManager.NavigateTo($"/course-details/{Course.Id}/{Course.UserId}");
+        NavigationManager.NavigateTo($"/course-details/{Course.Id}");
     }
 }

@@ -1,8 +1,6 @@
 ﻿@page "/courses"
-@using JavascriptLearningTool.Repositories
 @using Newtonsoft.Json
 @attribute [StreamRendering]
-@inject CourseRepository CourseRepository
 
 
 <PageTitle>Courses</PageTitle>
@@ -32,39 +30,20 @@
 </AuthorizeView>
 
 @code {
+
+    [Inject]
+    private ApiService ApiService { get; set; }
+
     [CascadingParameter]
     private Task<AuthenticationState>? authenticationState { get; set; }
 
-    [Inject]
-    public HttpClient _httpClient { get; set; }
-
     private Course[]? CurrentCourses;
-    // new List<Course>
-    // {
-    //     new Course { Id = 1, Name = "Introduction to Blazor", Description = "Learn the basics of Blazor framework.", CurrentPage = 5, Pages = 30 },
-    //     new Course { Id = 2, Name = "Advanced C# Programming", Description = "Explore advanced concepts in C#.", CurrentPage = 10, Pages = 50 }
-    //     // Add more courses as needed
-    // };
 
     protected override async Task OnInitializedAsync()
     {
         if (authenticationState != null && (await authenticationState).User?.Identity?.IsAuthenticated is true)
         {
-            CurrentCourses = await GetCoursesAsync();
+            CurrentCourses = await ApiService.GetUserCourses();
         }
-
-    }
-
-    private async Task<Course[]?> GetCoursesAsync()
-    {
-        _httpClient!.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-        var response = await _httpClient.GetAsync("api/courses");
-        if (response.IsSuccessStatusCode)
-        {
-            var result = await response.Content.ReadAsStringAsync();
-            var courses = JsonConvert.DeserializeObject<Course[]>(result);
-            return courses;
-        }
-        return null;
     }
 }

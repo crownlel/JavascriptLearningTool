@@ -1,3 +1,4 @@
+using JavascriptLearningTool.ClientServices;
 using JavascriptLearningTool.Components;
 using JavascriptLearningTool.Helpers;
 using JavascriptLearningTool.Models;
@@ -54,6 +55,7 @@ namespace JavascriptLearningTool
 
             // Services
             services.AddScoped<UserService>();
+            services.AddScoped<ApiService>();
 
             // Repositories
             services.AddScoped<UserRepository>();

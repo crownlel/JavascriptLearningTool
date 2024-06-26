@@ -1,7 +1,6 @@
 ﻿@page "/login"
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
-@inject HttpClient HttpClient
 @inject UserAuthenticationStateProvider UserAuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
@@ -43,6 +42,8 @@
 
 
 @code {
+    [Inject]
+    private ApiService ApiService { get; set; }
 
     private User loginModel = new() { Username = string.Empty, Password = string.Empty };
     private string? ErrorMessage;
@@ -57,10 +58,9 @@
 
         }
 
-        var response = await HttpClient.PostAsJsonAsync("api/authentication/token", loginModel);
-        if (response.IsSuccessStatusCode)
+        var token = await ApiService.GetAuthTokenAsync(loginModel);
+        if (token is not null)
         {
-            var token = await response.Content.ReadAsStringAsync();
             UserAuthenticationStateProvider.NotifyChanged(token);
             Navigation.NavigateTo("/", true);
         }

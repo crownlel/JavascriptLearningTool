@@ -1,11 +1,10 @@
-﻿using JavascriptLearningTool.Helpers;
-using JavascriptLearningTool.Models;
+﻿using JavascriptLearningTool.Models;
 using JavascriptLearningTool.Repositories;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace JavascriptLearningTool.Services
+namespace JavascriptLearningTool.Helpers
 {
     public class UserAuthenticationStateProvider : AuthenticationStateProvider
     {
@@ -34,7 +33,7 @@ namespace JavascriptLearningTool.Services
 
         private User DecryptToken(string jWTToken)
         {
-            if (string.IsNullOrEmpty(jWTToken)) return new User{ Username = string.Empty, Password = string.Empty };
+            if (string.IsNullOrEmpty(jWTToken)) return new User { Username = string.Empty, Password = string.Empty };
 
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(jWTToken);

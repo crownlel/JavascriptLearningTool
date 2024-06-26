@@ -1,6 +1,6 @@
 ﻿using Dapper;
+using JavascriptLearningTool.Helpers;
 using JavascriptLearningTool.Models;
-using JavascriptLearningTool.Services;
 
 namespace JavascriptLearningTool.Repositories
 {

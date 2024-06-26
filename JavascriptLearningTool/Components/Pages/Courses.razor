@@ -1,7 +1,5 @@
 ﻿@page "/courses"
-@using JavascriptLearningTool.Models
 @using JavascriptLearningTool.Repositories
-@using JavascriptLearningTool.Components.Layout
 @attribute [StreamRendering]
 @inject CourseRepository CourseRepository
 
@@ -18,7 +16,7 @@ else
         @foreach (var course in CurrentCourses)
     {
         <div class="col-md-4 mb-3">
-            <CourseCard Course="course" />
+            <JavascriptLearningTool.Components.Layout.CourseCard Course="course" />
         </div>
     }
 </div>

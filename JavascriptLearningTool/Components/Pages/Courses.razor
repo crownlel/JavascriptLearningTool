@@ -1,28 +1,43 @@
 ﻿@page "/courses"
 @using JavascriptLearningTool.Repositories
+@using Newtonsoft.Json
 @attribute [StreamRendering]
 @inject CourseRepository CourseRepository
 
 
 <PageTitle>Courses</PageTitle>
 <h3>Courses</h3>
-@if (CurrentCourses == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-   <div class="row">
-        @foreach (var course in CurrentCourses)
-    {
-        <div class="col-md-4 mb-3">
-            <JavascriptLearningTool.Components.Layout.CourseCard Course="course" />
-        </div>
-    }
-</div>
-}
+<AuthorizeView>
+    <NotAuthorized>
+
+    </NotAuthorized>
+    <Authorized>
+        @if (CurrentCourses == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var course in CurrentCourses)
+                {
+                    <div class="col-md-4 mb-3">
+                        <JavascriptLearningTool.Components.Layout.CourseCard Course="course" />
+                    </div>
+                }
+            </div>
+        }
+
+    </Authorized>
+</AuthorizeView>
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+
+    [Inject]
+    public HttpClient _httpClient { get; set; }
+
     private Course[]? CurrentCourses;
     // new List<Course>
     // {
@@ -33,7 +48,23 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var courses = await CourseRepository.GetAllCoursesAsync();
-        CurrentCourses = courses.ToArray();
+        if (authenticationState != null && (await authenticationState).User?.Identity?.IsAuthenticated is true)
+        {
+            CurrentCourses = await GetCoursesAsync();
+        }
+
+    }
+
+    private async Task<Course[]?> GetCoursesAsync()
+    {
+        _httpClient!.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+        var response = await _httpClient.GetAsync("api/courses");
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadAsStringAsync();
+            var courses = JsonConvert.DeserializeObject<Course[]>(result);
+            return courses;
+        }
+        return null;
     }
 }

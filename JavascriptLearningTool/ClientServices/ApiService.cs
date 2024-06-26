@@ -39,5 +39,18 @@ namespace JavascriptLearningTool.ClientServices
             }
             return null;
         }
+
+        public async Task<Course?> GetCourseByIdAsync(int id)
+        {
+            _httpClient!.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            var response = await _httpClient.GetAsync($"api/courses/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                var course = JsonConvert.DeserializeObject<Course>(result);
+                return course;
+            }
+            return null;
+        }
     }
 }

@@ -31,6 +31,16 @@ namespace JavascriptLearningTool.Repositories
             return await connection.QueryAsync<Course>(sql, new {UserId = userId});
         }
 
+        public async Task<Course?> GetUserCourseAsync(int courseId, int userId)
+        {
+            var connection = _connectionFactory.OpenConnection();
+            var sql = @"SELECT c.Id, c.Name, c.Description, 
+                        ISNULL(up.LastPage, 0)  as CurrentPage, c.Pages FROM Courses c
+                        left join UserProgresses up ON c.Id = up.CourseId and up.UserId = @UserId
+                        where c.Id = @CourseId";
+            return await connection.QueryFirstOrDefaultAsync<Course>(sql, new { UserId = userId, CourseId = courseId });
+        }
+
         public async Task AddCourseAsync(Course course)
         {
             var connection = _connectionFactory.OpenConnection();

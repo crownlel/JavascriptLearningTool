@@ -38,5 +38,19 @@ namespace JavascriptLearningTool.Controllers
 
             return Ok(userCourses.ToArray());
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("{courseId:int}")]
+        public async Task<IActionResult> GetUserCourse(int courseId)
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+            var userCourse = await _courseRepository.GetUserCourseAsync(courseId, user.Id);
+
+            return Ok(userCourse);
+        }
     }
 }

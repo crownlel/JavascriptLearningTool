@@ -17,12 +17,14 @@ namespace JavascriptLearningTool.Controllers
         private readonly CourseRepository _courseRepository;
         private readonly UserRepository _userRepository;
         private readonly UserProgressRepository _userProgressRepository;
+        private readonly PageRepository _pageRepository;
 
-        public CoursesController(CourseRepository courseRepository, UserRepository userRepository, UserProgressRepository userProgressRepository)
+        public CoursesController(CourseRepository courseRepository, UserRepository userRepository, UserProgressRepository userProgressRepository, PageRepository pageRepository)
         {
             _courseRepository = courseRepository;
             _userRepository = userRepository;
             _userProgressRepository = userProgressRepository;
+            _pageRepository = pageRepository;
         }
 
         [HttpGet]
@@ -51,6 +53,23 @@ namespace JavascriptLearningTool.Controllers
             var userCourse = await _courseRepository.GetUserCourseAsync(courseId, user.Id);
 
             return Ok(userCourse);
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("{courseId:int}/page/{pageId:int}")]
+        public async Task<IActionResult> GetUserCoursePage(int courseId, int pageId)
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+
+            var page = await _pageRepository.GetCoursePageAsync(courseId, pageId);
+            if (page == null)
+                return NotFound("Page not found");
+
+            return Ok(page);
         }
     }
 }

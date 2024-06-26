@@ -1,6 +1,7 @@
 ﻿using JavascriptLearningTool.Helpers;
 using JavascriptLearningTool.Models;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace JavascriptLearningTool.ClientServices
 {
@@ -29,7 +30,7 @@ namespace JavascriptLearningTool.ClientServices
 
         public async Task<Course[]?> GetUserCourses()
         {
-            _httpClient!.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
             var response = await _httpClient.GetAsync("api/courses");
             if (response.IsSuccessStatusCode)
             {
@@ -42,7 +43,7 @@ namespace JavascriptLearningTool.ClientServices
 
         public async Task<Course?> GetCourseByIdAsync(int id)
         {
-            _httpClient!.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
             var response = await _httpClient.GetAsync($"api/courses/{id}");
             if (response.IsSuccessStatusCode)
             {
@@ -51,6 +52,15 @@ namespace JavascriptLearningTool.ClientServices
                 return course;
             }
             return null;
+        }
+
+        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId)
+        {
+            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            var response = await _httpClient.GetAsync($"api/courses/{courseId}/page/{pageId}");
+            var result = await response.Content.ReadAsStringAsync();
+            var coursePage = JsonConvert.DeserializeObject<CoursePage>(result);
+            return coursePage;
         }
     }
 }

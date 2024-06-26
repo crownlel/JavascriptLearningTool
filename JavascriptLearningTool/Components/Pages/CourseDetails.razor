@@ -1,5 +1,7 @@
 ﻿<!-- Pages/CourseDetail.razor -->
 @page "/course-details/{courseId:int}"
+@attribute [StreamRendering]
+@rendermode InteractiveServer
 
 <h3>@course?.Name</h3>
 
@@ -7,8 +9,8 @@
 {
     <div>
         <p>@pageContent</p>
-        <button class="btn btn-primary" @onclick="PreviousPage" disabled="@currentPageIndex == 0">Previous</button>
-        <button class="btn btn-primary" @onclick="NextPage" disabled="@currentPageIndex == course.Pages - 1">Next</button>
+        <button class="btn btn-primary" @onclick="PreviousPageAsync" disabled="@currentPageId == 1">Previous</button>
+        <button class="btn btn-primary" @onclick="NextPageAsync" disabled="@currentPageId == course.Pages">Next</button>
     </div>
 }
 
@@ -20,32 +22,42 @@
     public int CourseId { get; set; }
 
     private Course course = null;
-    private string pageContent = string.Empty;
-    private int currentPageIndex = 0;
+    private MarkupString? pageContent;
+    private int currentPageId = 0;
 
     protected override async Task OnParametersSetAsync()
     {
         var crs = await ApiService.GetCourseByIdAsync(CourseId);
         if (crs != null)
         {
-            // TODO get current page content
+            currentPageId = crs.CurrentPage;
+            await LoadPageAsync();
             course = crs;   
         }
     }
 
-    private void NextPage()
+    private async Task LoadPageAsync()
     {
-        if (currentPageIndex < course.Pages - 1)
+        pageContent = new MarkupString("<p><em>Loading...</em></p>");
+        var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId);
+        pageContent = page?.Content != null ? new MarkupString(page.Content) : null;
+    }
+
+    private async Task NextPageAsync()
+    {
+        if (currentPageId < course.Pages)
         {
-            currentPageIndex++;
+            currentPageId++;
+            await LoadPageAsync();
         }
     }
 
-    private void PreviousPage()
+    private async Task PreviousPageAsync()
     {
-        if (currentPageIndex > 0)
+        if (currentPageId > 1)
         {
-            currentPageIndex--;
+            currentPageId--;
+            await LoadPageAsync();
         }
     }
 }

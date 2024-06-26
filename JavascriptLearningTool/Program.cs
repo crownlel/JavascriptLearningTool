@@ -1,10 +1,13 @@
 using JavascriptLearningTool.Components;
+using JavascriptLearningTool.Models;
 using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Data.SqlClient;
-using Microsoft.Data.Sqlite;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
+using System.Text;
 
 namespace JavascriptLearningTool
 {
@@ -38,11 +41,16 @@ namespace JavascriptLearningTool
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
 
+            app.MapControllers();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.Run();
         }
 
         private static void RegisterServices(IServiceCollection services, IConfigurationManager configurationManager)
         {
+            services.AddControllers();
+
             // Services
             services.AddScoped<UserService>();
 
@@ -57,9 +65,34 @@ namespace JavascriptLearningTool
 
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
+            services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7120") });
 
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                //opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidIssuer = configurationManager["Jwt:ValidIssuer"],
+                    ValidAudience = configurationManager["Jwt:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configurationManager["Jwt:Secret"])),
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true
+                };
+            });
+            services.AddSingleton(new JwtCredentials
+            {
+                Issuer = configurationManager["Jwt:ValidIssuer"],
+                Audience = configurationManager["Jwt:ValidAudience"],
+                Key = configurationManager["Jwt:Secret"]
+            });
             services.AddCascadingAuthenticationState();
-            services.AddAuthorizationCore();
+            services.AddAuthorization();
         }
     }
 }

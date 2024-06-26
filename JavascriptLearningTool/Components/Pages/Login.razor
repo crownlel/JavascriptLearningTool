@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@using JavascriptLearningTool.Models
 @using JavascriptLearningTool.Services
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authorization
@@ -6,7 +7,8 @@
 @using System.Security.Claims
 @rendermode InteractiveServer
 @inject NavigationManager Navigation
-@inject UserService UserService
+@inject HttpClient HttpClient
+@inject UserAuthenticationStateProvider UserAuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
 
@@ -23,7 +25,7 @@
                     {
                         <div class="alert alert-danger">@ErrorMessage</div>
                     }
-                    <EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmit">
+                    <EditForm Model="@loginModel" OnValidSubmit="@HandleValidSubmit" FormName="loginForm">
                         <DataAnnotationsValidator />
                         <ValidationSummary />
 
@@ -48,39 +50,29 @@
 
 @code {
 
-    private LoginModel loginModel = new LoginModel();
+    private User loginModel = new() { Username = string.Empty, Password = string.Empty };
     private string? ErrorMessage;
 
-    protected override async Task OnInitializedAsync()
+
+    private async Task HandleValidSubmit()
     {
         if (System.Diagnostics.Debugger.IsAttached)
         {
             loginModel.Username = "admin";
             loginModel.Password = "password";
-            await HandleValidSubmit();
+
         }
-        await  base.OnInitializedAsync();
-    }
 
-    private async Task HandleValidSubmit()
-    {
-        await UserService.LoginAsync(loginModel.Username, loginModel.Password);
-
-        // Simple username and password check
-        if (UserService.IsLoggedIn)
+        var response = await HttpClient.PostAsJsonAsync("api/authentication/token", loginModel);
+        if (response.IsSuccessStatusCode)
         {
-            Navigation.NavigateTo("/");
+            var token = await response.Content.ReadAsStringAsync();
+            UserAuthenticationStateProvider.NotifyChanged(token);
+            Navigation.NavigateTo("/", true);
         }
         else
         {
             ErrorMessage = "Invalid username or password";
         }
-    }
-
-    public class LoginModel
-    {
-        public string? Username { get; set; }
-
-        public string? Password { get; set; }
     }
 }

@@ -13,10 +13,25 @@
                 <p class="card-text"><strong>Total Pages:</strong> @Course.Pages</p>
             </div>
         </div>
+        <div class="text-right mt-3">
+            <button class="btn btn-primary" @onclick="NavigateToCourseDetails">View Details</button>
+        </div>
     </div>
 </div>
 
 @code {
     [Parameter]
     public Course Course { get; set; }
+
+    [Parameter]
+    public EventCallback<Course> OnCourseSelected { get; set; }
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private void NavigateToCourseDetails()
+    {
+        // Navigate to a new page and pass parameters in the URL
+        //NavigationManager.NavigateTo($"/course-details/{Course.Id}/{Course.UserId}");
+    }
 }

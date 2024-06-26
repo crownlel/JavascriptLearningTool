@@ -1,7 +1,14 @@
-﻿@inject AuthenticationStateProvider AuthenticationStateProvider
+﻿@using Microsoft.AspNetCore.Components.Authorization
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <NotAuthorized>
+                <h3>You are not authorized to access this page.</h3>
+                <p>Please <a href="login">log in</a> with an appropriate account.</p>
+            </NotAuthorized>
+            <Authorizing>
+                <p>Authorizing...</p>
+            </Authorizing>
         </AuthorizeRouteView>
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>

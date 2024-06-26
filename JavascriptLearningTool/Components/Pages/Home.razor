@@ -1,33 +1,37 @@
 ﻿@page "/"
 @rendermode InteractiveServer
 @using JavascriptLearningTool.Services
-@inject UserService UserService
+@inject UserAuthenticationStateProvider UserAuthenticationStateProvider
 @inject NavigationManager Navigation
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, @(UserService.User.Identity?.Name ?? "world")!</h1>
+<AuthorizeView>
+    <NotAuthorized>
+        <h1>Hello, world</h1>
+    </NotAuthorized>
+    <Authorized>
+        <h1>Hello, @context.User?.Identity?.Name</h1>
+    </Authorized>
+</AuthorizeView>
 
 Welcome to your new app.
 
-<div style="position: fixed; bottom: 20px; right: 20px;">
-    <button class="btn btn-primary" @onclick="Logout" href>Logout</button>
-</div>
-
+<AuthorizeView>
+    <NotAuthorized>
+        <p>You are not logged in.</p
+    </NotAuthorized>
+    <Authorized>
+        <div style="position: fixed; bottom: 20px; right: 20px;">
+            <button class="btn btn-primary" @onclick="Logout" href>Logout</button>
+        </div>
+    </Authorized>
+</AuthorizeView>
 @code {
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (!UserService.IsLoggedIn)
-        {
-            Navigation.NavigateTo("login");
-        }
-
-    }
 
     private void Logout()
     {
-        UserService.Logout();
+        UserAuthenticationStateProvider.NotifyChanged(string.Empty);
         Navigation.NavigateTo("login");
     }
 }

@@ -58,6 +58,44 @@ namespace JavascriptLearningTool.Repositories
             var sql = "DELETE FROM UserProgresses WHERE UserId = @UserId AND CourseId = @CourseId";
             await connection.ExecuteAsync(sql, new { UserId = userId, CourseId = courseId });
         }
+
+        public async Task AddPageActivity(int userId, int courseId, int pageId, int secondsSpentOnPage)
+        {
+            var newPageActivity = new PageActivity
+            {
+                UserId = userId,
+                CourseId = courseId,
+                PageId = pageId,
+                SecondsSpent = secondsSpentOnPage,
+                Timestamp = DateTime.Now
+            };
+            var sql = "INSERT INTO PageActivities (UserId, CourseId, PageId, SecondsSpent, Timestamp) VALUES (@UserId, @CourseId, @PageId, @SecondsSpent, @Timestamp)";
+            using var connection = _connectionFactory.OpenConnection();
+            await connection.ExecuteAsync(sql, new
+            {
+                newPageActivity.UserId,
+                newPageActivity.CourseId,
+                newPageActivity.PageId,
+                newPageActivity.SecondsSpent,
+                newPageActivity.Timestamp
+            });
+        }
+
+        public async Task SaveUserProgressAsync(int userId, int courseId, int pageId, int secondsSpentOnPage)
+        {
+            var userProgress = await GetUserProgressAsync(userId, courseId);
+
+            // track time spent on page
+            if (secondsSpentOnPage > 3)
+            {
+                await AddPageActivity(userId, courseId, userProgress!.LastPage, secondsSpentOnPage); 
+            }
+
+            userProgress.LastPage = pageId;
+            userProgress.LastUpdated = DateTime.Now;
+            await UpdateUserProgressAsync(userProgress);
+
+        }
     }
 
 }

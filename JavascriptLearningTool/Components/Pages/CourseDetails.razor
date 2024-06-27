@@ -24,6 +24,7 @@
     private Course course = null;
     private MarkupString? pageContent;
     private int currentPageId = 0;
+    private System.Diagnostics.Stopwatch _stopwatch = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -32,6 +33,7 @@
         {
             currentPageId = crs.CurrentPage;
             await LoadPageAsync();
+            _stopwatch.Restart();
             course = crs;
         }
     }
@@ -39,8 +41,11 @@
     private async Task LoadPageAsync()
     {
         pageContent = new MarkupString("<p><em>Loading...</em></p>");
-        var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId);
+        // Track time spend on each page
+        var secondsSpentOnPage = (int) _stopwatch.Elapsed.TotalSeconds;
+        var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
         pageContent = page?.Content != null ? new MarkupString(page.Content) : null;
+        _stopwatch.Restart();
     }
 
     private async Task NextPageAsync()
@@ -60,4 +65,6 @@
             await LoadPageAsync();
         }
     }
+
+    // TODO track page time on exit
 }

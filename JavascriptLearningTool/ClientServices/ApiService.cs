@@ -54,10 +54,10 @@ namespace JavascriptLearningTool.ClientServices
             return null;
         }
 
-        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId)
+        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage)
         {
             _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-            var response = await _httpClient.GetAsync($"api/courses/{courseId}/page/{pageId}");
+            var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage);
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadAsStringAsync();

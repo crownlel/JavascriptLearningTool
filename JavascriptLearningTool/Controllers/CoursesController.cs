@@ -51,14 +51,24 @@ namespace JavascriptLearningTool.Controllers
             if (user == null)
                 return BadRequest("User not found");
             var userCourse = await _courseRepository.GetUserCourseAsync(courseId, user.Id);
-
+            if (userCourse?.CurrentPage is 0)
+            {
+                await _userProgressRepository.AddUserProgressAsync(new UserProgress
+                {
+                    UserId = user.Id,
+                    CourseId = courseId,
+                    LastPage = 1,
+                    LastUpdated = DateTime.Now
+                });
+                userCourse.CurrentPage = 1;
+            }
             return Ok(userCourse);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Authorize]
         [Route("{courseId:int}/page/{pageId:int}")]
-        public async Task<IActionResult> GetUserCoursePage(int courseId, int pageId)
+        public async Task<IActionResult> GetUserCoursePage(int courseId, int pageId, [FromBody] int secondsSpentOnPage)
         {
             var username = User!.Identity!.Name!;
             var user = await _userRepository.GetUserByUsernameAsync(username);
@@ -69,6 +79,8 @@ namespace JavascriptLearningTool.Controllers
             if (page == null)
                 return NotFound("Page not found");
 
+            // Save user progress
+            await _userProgressRepository.SaveUserProgressAsync(user.Id, courseId, pageId, secondsSpentOnPage);
             return Ok(page);
         }
     }

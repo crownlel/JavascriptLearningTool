@@ -1,6 +1,5 @@
 ﻿<!-- Pages/CourseDetail.razor -->
 @page "/course-details/{courseId:int}"
-@attribute [StreamRendering]
 @rendermode InteractiveServer
 
 <h3>@course?.Name</h3>
@@ -9,8 +8,9 @@
 {
     <div>
         <p>@pageContent</p>
-        <button class="btn btn-primary" @onclick="PreviousPageAsync" disabled="@currentPageId == 1">Previous</button>
-        <button class="btn btn-primary" @onclick="NextPageAsync" disabled="@currentPageId == course.Pages">Next</button>
+        <button class="btn btn-primary" @onclick="PreviousPageAsync" disabled="@(currentPageId <= 1)">Previous</button>
+        Current Page: @currentPageId
+        <button class="btn btn-primary" @onclick="NextPageAsync" disabled="@(currentPageId >= course?.Pages)">Next</button>
     </div>
 }
 
@@ -32,7 +32,7 @@
         {
             currentPageId = crs.CurrentPage;
             await LoadPageAsync();
-            course = crs;   
+            course = crs;
         }
     }
 

@@ -58,9 +58,13 @@ namespace JavascriptLearningTool.ClientServices
         {
             _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
             var response = await _httpClient.GetAsync($"api/courses/{courseId}/page/{pageId}");
-            var result = await response.Content.ReadAsStringAsync();
-            var coursePage = JsonConvert.DeserializeObject<CoursePage>(result);
-            return coursePage;
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                var coursePage = JsonConvert.DeserializeObject<CoursePage>(result);
+                return coursePage; 
+            }
+            return null;
         }
     }
 }

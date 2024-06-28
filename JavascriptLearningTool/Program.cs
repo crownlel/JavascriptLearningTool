@@ -67,6 +67,7 @@ namespace JavascriptLearningTool
             services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));
             services.AddSingleton<DbConnectionFactory>();
 
+            services.AddBlazorBootstrap();
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
             services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7120") });

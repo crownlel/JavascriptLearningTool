@@ -44,8 +44,19 @@ namespace JavascriptLearningTool
                 .AddInteractiveServerRenderMode();
 
             app.MapControllers();
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
+            //begin SetString() hack
+            app.Use(async delegate (HttpContext Context, Func<Task> Next)
+            {
+                //this throwaway session variable will "prime" the SetString() method
+                //to allow it to be called after the response has started
+                var TempKey = Guid.NewGuid().ToString(); //create a random key
+                Context.Session.Set(TempKey, Array.Empty<byte>()); //set the throwaway session variable
+                Context.Session.Remove(TempKey); //remove the throwaway session variable
+                await Next(); //continue on with the request
+            });
             app.Run();
         }
 
@@ -98,6 +109,14 @@ namespace JavascriptLearningTool
             });
             services.AddCascadingAuthenticationState();
             services.AddAuthorization();
+            services.AddHttpContextAccessor();
+            services.AddDistributedMemoryCache();
+
+            services.AddSession(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
         }
     }
 }

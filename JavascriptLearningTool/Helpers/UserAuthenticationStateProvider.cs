@@ -9,11 +9,18 @@ namespace JavascriptLearningTool.Helpers
     public class UserAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly ClaimsPrincipal _anonymous = new(new ClaimsIdentity());
+        private IHttpContextAccessor _httpContextAccessor;
+
+        public UserAuthenticationStateProvider(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+        }
+
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
             {
-                var token = Constants.JWTToken;
+                var token = _httpContextAccessor.GetAuthToken();
                 if (string.IsNullOrEmpty(token))
                 {
                     return Task.FromResult(new AuthenticationState(_anonymous));
@@ -62,13 +69,13 @@ namespace JavascriptLearningTool.Helpers
             var principal = new ClaimsPrincipal();
             if (!string.IsNullOrEmpty(token))
             {
-                Constants.JWTToken = token;
+                _httpContextAccessor.SetAuthToken(token);
                 var userClaims = DecryptToken(token);
                 principal = SetClaimsPrincipal(userClaims);
             }
             else
             {
-                Constants.JWTToken = string.Empty;
+                _httpContextAccessor.SetAuthToken(null);
             }
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
         }

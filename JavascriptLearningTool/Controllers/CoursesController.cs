@@ -83,5 +83,27 @@ namespace JavascriptLearningTool.Controllers
             await _userProgressRepository.SaveUserProgressAsync(user.Id, courseId, pageId, secondsSpentOnPage);
             return Ok(page);
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("stats")]
+        public async Task<IActionResult> GetAllUserPageStatsGroupedAsync()
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+            var activities = await _userProgressRepository.GetAllUserPageStatsAsync(user.Id);
+            var groupedActivities = activities.GroupBy(a => new { a.CourseId, a.PageId })
+                .Select(g => new PageActivity
+                {
+                    UserId = user.Id,
+                    CourseId = g.Key.CourseId,
+                    PageId = g.Key.PageId,
+                    SecondsSpent = g.Sum(a => a.SecondsSpent),
+                    Timestamp = g.Max(a => a.Timestamp)
+                });
+            return Ok(groupedActivities.ToArray());
+        }
     }
 }

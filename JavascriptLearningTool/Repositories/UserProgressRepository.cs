@@ -88,7 +88,7 @@ namespace JavascriptLearningTool.Repositories
             // track time spent on page
             if (secondsSpentOnPage > 3)
             {
-                await AddPageActivity(userId, courseId, userProgress!.LastPage, secondsSpentOnPage); 
+                await AddPageActivity(userId, courseId, userProgress!.LastPage, secondsSpentOnPage);
             }
 
             userProgress.LastPage = pageId;
@@ -96,6 +96,14 @@ namespace JavascriptLearningTool.Repositories
             await UpdateUserProgressAsync(userProgress);
 
         }
+
+        public async Task<IEnumerable<PageActivity>> GetAllUserPageStatsAsync(int userId)
+        {
+            var connection = _connectionFactory.OpenConnection();
+            var sql = @"select * from PageActivities where UserId = @UserId";
+            return await connection.QueryAsync<PageActivity>(sql, new { UserId = userId });
+        }
+
     }
 
 }

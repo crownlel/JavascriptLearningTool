@@ -63,5 +63,7 @@ namespace JavascriptLearningTool.ClientServices
 
         public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage) 
             => await PostAsJsonAsync<CoursePage, int>($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage, true);
+
+        public async Task<IEnumerable<PageActivity>?> GetAllUserPageStatsGroupedAsync() => await GetAsync<IEnumerable<PageActivity>>("api/courses/stats", true);
     }
 }

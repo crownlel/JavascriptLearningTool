@@ -18,18 +18,13 @@ a, .btn-link {
 }
 
 .content {
-    padding-bottom: 55px;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-}
-
-.scrollable-content {
     flex-grow: 1; /* Allow the content to grow and fill available space */
     overflow-y: auto; /* Enable vertical scrolling */
     padding-top: 1rem;
     padding-bottom: 1rem;
+    margin-bottom: 20px;
 }
+
 
 h1:focus {
     outline: none;

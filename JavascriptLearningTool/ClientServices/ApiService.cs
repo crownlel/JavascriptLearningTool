@@ -14,6 +14,38 @@ namespace JavascriptLearningTool.ClientServices
             _httpClient = httpClient;
         }
 
+        private async Task<T> GetAsync<T>(string url, bool isAuthorizationNeeded = false)
+        {
+            if (isAuthorizationNeeded)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            }
+            var response = await _httpClient.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                var t = JsonConvert.DeserializeObject<T>(result);
+                return t;
+            }
+            return default;
+        }
+
+        private async Task<T> PostAsJsonAsync<T, T2>(string url, T2 obj, bool isAuthorizationNeeded = false)
+        {
+            if (isAuthorizationNeeded)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+            }
+            var response = await _httpClient.PostAsJsonAsync(url, obj);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                var t = JsonConvert.DeserializeObject<T>(result);
+                return t;
+            }
+            return default;
+        }
+
         public async Task<string?> GetAuthTokenAsync(User loginModel)
         {
 
@@ -22,49 +54,14 @@ namespace JavascriptLearningTool.ClientServices
             {
                 return await response.Content.ReadAsStringAsync();
             }
-            else
-            {
-                return null;
-            }
-        }
-
-        public async Task<Course[]?> GetUserCourses()
-        {
-            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-            var response = await _httpClient.GetAsync("api/courses");
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                var courses = JsonConvert.DeserializeObject<Course[]>(result);
-                return courses;
-            }
             return null;
         }
 
-        public async Task<Course?> GetCourseByIdAsync(int id)
-        {
-            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-            var response = await _httpClient.GetAsync($"api/courses/{id}");
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                var course = JsonConvert.DeserializeObject<Course>(result);
-                return course;
-            }
-            return null;
-        }
+        public async Task<Course[]?> GetUserCourses() => await GetAsync<Course[]>("api/courses", true);
 
-        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage)
-        {
-            _httpClient!.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-            var response = await _httpClient.PostAsJsonAsync($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                var coursePage = JsonConvert.DeserializeObject<CoursePage>(result);
-                return coursePage; 
-            }
-            return null;
-        }
+        public async Task<Course?> GetCourseByIdAsync(int id) => await GetAsync<Course>($"api/courses/{id}", true);
+
+        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage) 
+            => await PostAsJsonAsync<CoursePage, int>($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage, true);
     }
 }

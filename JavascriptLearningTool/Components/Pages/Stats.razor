@@ -1,0 +1,86 @@
+﻿@page "/stats"
+<h3>Stats</h3>
+
+@if (userCourses == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var course in userCourses)
+        {
+            <BarChart @ref="_charts[course.Id]" Width="500" Height="300" />
+        }
+    </div>
+}
+@code {
+    private BarChartOptions barChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
+
+    private Course[] userCourses = default!;
+    private Dictionary<int, BarChart> _charts = new();
+    private Dictionary<int, ChartData> _chartData = new();
+
+    [Inject]
+    public ApiService ApiService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCartsAsync();
+    }
+
+    private async Task LoadCartsAsync()
+    {
+        var courses = await ApiService.GetUserCourses();
+        var pageActivities = await ApiService.GetAllUserPageStatsGroupedAsync();
+        if (courses != null && pageActivities != null)
+        {
+            var courseGroups = pageActivities.GroupBy(pa => pa.CourseId);
+            foreach (var course in courses)
+            {
+                CreateChart(course, courseGroups.FirstOrDefault(g => g.Key == course.Id)?.ToArray() ?? Array.Empty<PageActivity>());
+            }
+            userCourses = courses;
+            StateHasChanged();
+            await InitializeChartsAsync();
+        }
+    }
+
+    private async Task InitializeChartsAsync()
+    {
+        foreach (var chartKvP in _charts)
+        {
+            var data = _chartData[chartKvP.Key];
+            await chartKvP.Value.InitializeAsync(data, barChartOptions);
+        }
+    }
+
+    public void CreateChart(Course course, PageActivity[] pageActivities)
+    {
+        var c = ColorUtility.CategoricalTwelveColors[course.Id - 1 % 11].ToColor();
+        var pages = Enumerable.Range(1, course.Pages).ToArray();
+
+        _charts[course.Id] = new BarChart();
+        _chartData[course.Id] = new ChartData
+            {
+                Labels = pages.Select(n => $"p.{n}").ToList(),
+                Datasets = new List<IChartDataset>
+                {
+                    new BarChartDataset
+                    {
+                        Label = "Minutes spent on Page",
+                        Data = pages.Select(p =>
+                        {
+                            var secondsSpent = pageActivities.FirstOrDefault(pa => pa.PageId == p)?.SecondsSpent ?? 0;
+                            return (double)secondsSpent / 60;
+                        }).ToList(),
+                        BackgroundColor = new List<string> { c.ToRgbString() },
+                        BorderColor = new List<string> { c.ToRgbString() },
+                        BorderWidth = new List<double> { 0 },
+                    }
+                }
+            };
+    }
+
+}
+

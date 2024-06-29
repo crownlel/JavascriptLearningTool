@@ -102,7 +102,9 @@ namespace JavascriptLearningTool.Controllers
                     PageId = g.Key.PageId,
                     SecondsSpent = g.Sum(a => a.SecondsSpent),
                     Timestamp = g.Max(a => a.Timestamp)
-                });
+                })
+                .OrderBy(pa => pa.CourseId)
+                .ThenBy(pa => pa.PageId);
             return Ok(groupedActivities.ToArray());
         }
     }

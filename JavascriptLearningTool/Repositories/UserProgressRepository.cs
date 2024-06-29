@@ -99,7 +99,7 @@ namespace JavascriptLearningTool.Repositories
 
         public async Task<IEnumerable<PageActivity>> GetAllUserPageStatsAsync(int userId)
         {
-            var connection = _connectionFactory.OpenConnection();
+            using var connection = _connectionFactory.OpenConnection();
             var sql = @"select * from PageActivities where UserId = @UserId";
             return await connection.QueryAsync<PageActivity>(sql, new { UserId = userId });
         }

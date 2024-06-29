@@ -1,0 +1,71 @@
+﻿@page "/test-details/{courseId}"
+<h3>TestDetails</h3>
+
+@code {
+    [Inject]
+    private ApiService ApiService { get; set; }
+
+    [Parameter]
+    public string CourseId { get; set; }
+
+    private Question[] Questions { get; set; }
+    private Dictionary<int, int> SelectedAnswers { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (CourseId == Constants.ComprehensiveTestRoute)
+        {
+            // TODO load random question probably more
+            await LoadMultipleCourseQuestions();
+        }
+        else
+        {
+            // TODO load questions for the course
+            var courseId = int.Parse(CourseId);
+            await LoadSingleCourseQuestions(courseId);
+        }
+        SelectedAnswers = new Dictionary<int, int>();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task LoadSingleCourseQuestions(int courseId)
+    {
+        //Questions = await ApiService.GetCourseQuestionsAsync(courseId);
+    }
+
+    private async Task LoadMultipleCourseQuestions()
+    {
+        // TODO: Implement loading multiple course questions
+    }
+
+    private async Task SubmitAnswers()
+    {
+        // Check if the user has selected an answer for each question
+        if (SelectedAnswers.Count != Questions.Length)
+        {
+            // TODO: Show an error message to the user
+            return;
+        }
+
+        // TODO: Process the submitted answers
+    }
+}
+
+@foreach (var question in Questions)
+{
+    <h4>@question.Title</h4>
+    <div class="form-check">
+
+        <input class="form-check-input" type="radio" name="@question.Id" value=1 @onchange="e => SelectedAnswers[question.Id] = 1" />
+        <label class="form-check-label">@question.Option1</label>
+
+        <input class="form-check-input" type="radio" name="@question.Id" value=2 @onchange="e => SelectedAnswers[question.Id] = 2" />
+        <label class="form-check-label">@question.Option2</label>
+
+        <input class="form-check-input" type="radio" name="@question.Id" value=3 @onchange="e => SelectedAnswers[question.Id] = 3" />
+        <label class="form-check-label">@question.Option3</label>
+
+    </div>
+}
+
+<button class="btn btn-primary" @onclick="SubmitAnswers">Submit</button>

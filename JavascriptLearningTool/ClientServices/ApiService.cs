@@ -68,5 +68,7 @@ namespace JavascriptLearningTool.ClientServices
             => await PostAsJsonAsync<CoursePage, int>($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage, true);
 
         public async Task<IEnumerable<PageActivity>?> GetAllUserPageStatsGroupedAsync() => await GetAsync<IEnumerable<PageActivity>>("api/courses/stats", true);
+
+        public async Task<IEnumerable<Test>?> GetUserTestsAsync() => throw new NotImplementedException();
     }
 }

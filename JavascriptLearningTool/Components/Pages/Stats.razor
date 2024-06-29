@@ -3,7 +3,7 @@
 
 @if (userCourses == null)
 {
-    <p>Loading...</p>
+    <Spinner Color="SpinnerColor.Primary" />
 }
 else
 {
@@ -40,6 +40,7 @@ else
             {
                 CreateChart(course, courseGroups.FirstOrDefault(g => g.Key == course.Id)?.ToArray() ?? Array.Empty<PageActivity>());
             }
+            await Task.Delay(500);
             userCourses = courses;
             StateHasChanged();
             await InitializeChartsAsync();

@@ -1,0 +1,58 @@
+﻿@page "/tests"
+@using JavascriptLearningTool.Components.Layout
+<h3>Tests</h3>
+@if (CurrentTests == null)
+{
+    <Spinner Color="SpinnerColor.Primary" />
+}
+else
+{
+    <div class="row">
+        @foreach (var test in CurrentTests)
+        {
+            <div class="col-md-4 mb-3">
+                <TestCard Test="test" />
+            </div>
+        }
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <TestCard Test="@(new Test{ Title = "Comprehensive Test"})" />
+    </div>
+    
+</div>
+
+@code {
+
+    [Inject]
+    private ApiService ApiService { get; set; }
+
+    private Test[] CurrentTests;
+
+    private Test[] _sampleTests = new[
+    ]
+    {
+        new Test { Id = 1, Title = "Test 1", Duration = 10 },
+        new Test { Id = 2, Title = "Test 2", Duration = 20 },
+        new Test { Id = 3, Title = "Test 3", Duration = 30 },
+        new Test { Id = 4, Title = "Test 4", Duration = 40 },
+        new Test { Id = 5, Title = "Test 5", Duration = 50 },
+        new Test { Id = 6, Title = "Test 6", Duration = 60 },
+        new Test { Id = 7, Title = "Test 7", Duration = 70 },
+        new Test { Id = 8, Title = "Test 8", Duration = 80 },
+        new Test { Id = 9, Title = "Test 9", Duration = 90 },
+        new Test { Id = 10, Title = "Test 10", Duration = 100 }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tests = _sampleTests;
+        //var tests = await ApiService.GetUserTestsAsync();
+        if (tests != null)
+        {
+            CurrentTests = tests.ToArray();
+        }
+    }
+}

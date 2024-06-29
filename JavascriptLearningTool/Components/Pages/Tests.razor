@@ -34,22 +34,21 @@ else
     private Test[] _sampleTests = new[
     ]
     {
-        new Test { Id = 1, Title = "Test 1", Duration = 10 },
-        new Test { Id = 2, Title = "Test 2", Duration = 20 },
-        new Test { Id = 3, Title = "Test 3", Duration = 30 },
-        new Test { Id = 4, Title = "Test 4", Duration = 40 },
-        new Test { Id = 5, Title = "Test 5", Duration = 50 },
-        new Test { Id = 6, Title = "Test 6", Duration = 60 },
-        new Test { Id = 7, Title = "Test 7", Duration = 70 },
-        new Test { Id = 8, Title = "Test 8", Duration = 80 },
-        new Test { Id = 9, Title = "Test 9", Duration = 90 },
-        new Test { Id = 10, Title = "Test 10", Duration = 100 }
+        new Test { CourseId = 1, Title = "Test 1", Duration = 10 },
+        new Test { CourseId = 2, Title = "Test 2", Duration = 20 },
+        new Test { CourseId = 3, Title = "Test 3", Duration = 30 },
+        new Test { CourseId = 4, Title = "Test 4", Duration = 40 },
+        new Test { CourseId = 5, Title = "Test 5", Duration = 50 },
+        new Test { CourseId = 6, Title = "Test 6", Duration = 60 },
+        new Test { CourseId = 7, Title = "Test 7", Duration = 70 },
+        new Test { CourseId = 8, Title = "Test 8", Duration = 80 },
+        new Test { CourseId = 9, Title = "Test 9", Duration = 90 },
+        new Test { CourseId = 10, Title = "Test 10", Duration = 100 }
     };
 
     protected override async Task OnInitializedAsync()
     {
-        var tests = _sampleTests;
-        //var tests = await ApiService.GetUserTestsAsync();
+        var tests = await ApiService.GetTestsAsync();
         if (tests != null)
         {
             CurrentTests = tests.ToArray();

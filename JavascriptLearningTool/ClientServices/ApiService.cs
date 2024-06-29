@@ -60,15 +60,21 @@ namespace JavascriptLearningTool.ClientServices
             return null;
         }
 
+        #region Courses
         public async Task<Course[]?> GetUserCourses() => await GetAsync<Course[]>("api/courses", true);
 
         public async Task<Course?> GetCourseByIdAsync(int id) => await GetAsync<Course>($"api/courses/{id}", true);
 
-        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage) 
+        public async Task<CoursePage?> GetCoursePageAsync(int courseId, int pageId, int secondsSpentOnPage)
             => await PostAsJsonAsync<CoursePage, int>($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage, true);
 
         public async Task<IEnumerable<PageActivity>?> GetAllUserPageStatsGroupedAsync() => await GetAsync<IEnumerable<PageActivity>>("api/courses/stats", true);
+        #endregion
 
-        public async Task<IEnumerable<Test>?> GetUserTestsAsync() => throw new NotImplementedException();
+        #region Tests
+        public async Task<IEnumerable<Test>?> GetTestsAsync() => await GetAsync<IEnumerable<Test>>("api/tests");
+
+        public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId, int totalQuestions) => await PostAsJsonAsync<IEnumerable<Question>, int>($"api/tests/{courseId}", totalQuestions);
+        #endregion
     }
 }

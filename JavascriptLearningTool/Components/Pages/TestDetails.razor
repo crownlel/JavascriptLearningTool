@@ -30,7 +30,12 @@
 
     private async Task LoadSingleCourseQuestions(int courseId)
     {
-        //Questions = await ApiService.GetCourseQuestionsAsync(courseId);
+        // TODO fetch questions count
+        var questions = await ApiService.GetTestQuestionsAsync(courseId , 5);
+        if (questions != null)
+        {
+            Questions = questions.ToArray();
+        }
     }
 
     private async Task LoadMultipleCourseQuestions()
@@ -50,22 +55,36 @@
         // TODO: Process the submitted answers
     }
 }
-
-@foreach (var question in Questions)
+@if (Questions != null)
 {
-    <h4>@question.Title</h4>
-    <div class="form-check">
+    @foreach (var question in Questions)
+    {
+        <h4>@question.Title</h4>
+        <div class="form-check">
 
-        <input class="form-check-input" type="radio" name="@question.Id" value=1 @onchange="e => SelectedAnswers[question.Id] = 1" />
-        <label class="form-check-label">@question.Option1</label>
+            <input class="form-check-input" type="radio" name="@question.Id" value=1 @onchange="e => SelectedAnswers[question.Id] = 1" />
+            <label class="form-check-label">@question.Option1</label>
 
-        <input class="form-check-input" type="radio" name="@question.Id" value=2 @onchange="e => SelectedAnswers[question.Id] = 2" />
-        <label class="form-check-label">@question.Option2</label>
+        </div>
+        <div class="form-check">
 
-        <input class="form-check-input" type="radio" name="@question.Id" value=3 @onchange="e => SelectedAnswers[question.Id] = 3" />
-        <label class="form-check-label">@question.Option3</label>
+            <input class="form-check-input" type="radio" name="@question.Id" value=2 @onchange="e => SelectedAnswers[question.Id] = 2" />
+            <label class="form-check-label">@question.Option2</label>
 
-    </div>
+        </div>
+        <div class="form-check">
+
+            <input class="form-check-input" type="radio" name="@question.Id" value=3 @onchange="e => SelectedAnswers[question.Id] = 3" />
+            <label class="form-check-label">@question.Option3</label>
+
+        </div>
+    }
 }
+else
+{
+    <Spinner Color="SpinnerColor.Primary" />
+
+}
+
 
 <button class="btn btn-primary" @onclick="SubmitAnswers">Submit</button>

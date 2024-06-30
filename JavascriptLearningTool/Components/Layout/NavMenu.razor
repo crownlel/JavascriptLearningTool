@@ -1,58 +1,58 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">JavascriptLearningTool</a>
-    </div>
-</div>
+﻿@inherits LayoutComponentBase
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <AuthorizeView>
-            <Authorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-                    </NavLink>
-                </div>
+<Sidebar @ref="sidebar"
+         IconName="IconName.FileTypeJs"
+         Title="Javascript Learning Tool"
+         DataProvider="SidebarDataProviderAsync" />
 
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="courses">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Courses
-                    </NavLink>
-                </div>
 
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="stats">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Stats
-                    </NavLink>
-                </div>
+@code {
+    private Sidebar sidebar = default!;
+    private IEnumerable<NavItem> navItems = default!;
 
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="tests">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Tests
-                    </NavLink>
-                </div>
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
 
-                @* <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="counter">
-                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-                    </NavLink>
-                </div>
+    private async Task<SidebarDataProviderResult> SidebarDataProviderAsync(SidebarDataProviderRequest request)
+    {
 
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="weather">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-                    </NavLink>
-                </div> *@
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
-</div>
+        if (navItems is null)
+        {
+            var isAuthenticated = await authenticationState.IsAuthenticatedAsync();
+            if(isAuthenticated)
+            {
+                navItems = GetAutorizedNavItems();
+            }
+            else
+            {
+                navItems = GetUnautorizedNavItems();
+            }
+        }
+
+        return request.ApplyTo(navItems);
+    }
+
+    private IEnumerable<NavItem> GetAutorizedNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+            new NavItem { Id = "2", Href = "/courses", IconName = IconName.MortarboardFill, Text = "Courses"},
+            new NavItem { Id = "3", Href = "/stats", IconName = IconName.BarChartFill, Text = "Stats"},
+            new NavItem { Id = "4", Href = "/tests", IconName = IconName.UiRadios, Text = "Tests"},
+        };
+
+        return navItems;
+    }
+
+    private IEnumerable<NavItem> GetUnautorizedNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/login", IconName = IconName.Person, Text = "Login", Match=NavLinkMatch.All},
+        };
+
+        return navItems;
+    }
+}

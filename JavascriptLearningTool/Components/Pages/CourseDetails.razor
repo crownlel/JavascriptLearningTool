@@ -1,6 +1,7 @@
 ﻿<!-- Pages/CourseDetail.razor -->
 @page "/course-details/{courseId:int}"
 @rendermode InteractiveServer
+@implements IDisposable
 
 <h3>@course?.Name</h3>
 
@@ -66,5 +67,10 @@
         }
     }
 
-    // TODO track page time on exit
+    public void Dispose()
+    {
+        var secondsSpentOnPage = (int)_stopwatch.Elapsed.TotalSeconds;
+        _stopwatch.Reset();
+        ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
+    }
 }

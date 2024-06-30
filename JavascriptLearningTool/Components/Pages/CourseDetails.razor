@@ -8,10 +8,23 @@
 @if (course != null)
 {
     <div>
-        <p>@pageContent</p>
-        <button class="btn btn-primary" @onclick="PreviousPageAsync" disabled="@(currentPageId <= 1)">Previous</button>
-        Current Page: @currentPageId
-        <button class="btn btn-primary" @onclick="NextPageAsync" disabled="@(currentPageId >= course?.Pages)">Next</button>
+        @if (pageContent != null)
+        {
+            <p>@pageContent</p>
+        }
+        else
+        {
+            <Spinner Color="SpinnerColor.Primary" />
+        }
+
+    </div>
+    <div style="position: fixed; bottom: 30px;">
+        <Pagination ActivePageNumber="@currentPageId" TotalPages="@course.Pages" PageChanged="OnPageChangedAsync"
+                    DisplayPages="3"
+                    FirstLinkIcon="IconName.ChevronDoubleLeft"
+                    PreviousLinkIcon="IconName.ChevronLeft"
+                    NextLinkIcon="IconName.ChevronRight"
+                    LastLinkIcon="IconName.ChevronDoubleRight" />
     </div>
 }
 
@@ -41,36 +54,26 @@
 
     private async Task LoadPageAsync()
     {
-        pageContent = new MarkupString("<p><em>Loading...</em></p>");
+        pageContent = null;
+        StateHasChanged();
         // Track time spend on each page
-        var secondsSpentOnPage = (int) _stopwatch.Elapsed.TotalSeconds;
+        var secondsSpentOnPage = (int)_stopwatch.Elapsed.TotalSeconds;
         var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
         pageContent = page?.Content != null ? new MarkupString(page.Content) : null;
         _stopwatch.Restart();
     }
 
-    private async Task NextPageAsync()
-    {
-        if (currentPageId < course.Pages)
-        {
-            currentPageId++;
-            await LoadPageAsync();
-        }
-    }
-
-    private async Task PreviousPageAsync()
-    {
-        if (currentPageId > 1)
-        {
-            currentPageId--;
-            await LoadPageAsync();
-        }
-    }
-
+    // Track time on page close
     public void Dispose()
     {
         var secondsSpentOnPage = (int)_stopwatch.Elapsed.TotalSeconds;
         _stopwatch.Reset();
         ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
+    }
+
+    private async Task OnPageChangedAsync(int newPageNumber)
+    {
+        currentPageId = newPageNumber;
+        await LoadPageAsync();
     }
 }

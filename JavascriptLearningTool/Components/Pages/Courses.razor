@@ -35,13 +35,13 @@
     private ApiService ApiService { get; set; }
 
     [CascadingParameter]
-    private Task<AuthenticationState>? authenticationState { get; set; }
+    private Task<AuthenticationState> authenticationState { get; set; }
 
     private Course[]? CurrentCourses;
 
     protected override async Task OnInitializedAsync()
     {
-        if (authenticationState != null && (await authenticationState).User?.Identity?.IsAuthenticated is true)
+        if (await authenticationState.IsAuthenticatedAsync())
         {
             CurrentCourses = await ApiService.GetUserCourses();
         }

@@ -14,11 +14,15 @@ namespace JavascriptLearningTool.Controllers
     {
         private readonly TestRepository _testRepository;
         private readonly QuestionRepository _questionRepository;
+        private readonly UserRepository _userRepository;
+        private readonly AnswerRepository _answerRepository;
 
-        public TestsController(TestRepository testRepository, QuestionRepository questionRepository)
+        public TestsController(TestRepository testRepository, QuestionRepository questionRepository, UserRepository userRepository, AnswerRepository answerRepository)
         {
             _testRepository = testRepository;
             _questionRepository = questionRepository;
+            _userRepository = userRepository;
+            _answerRepository = answerRepository;
         }
 
         [HttpGet]
@@ -48,6 +52,20 @@ namespace JavascriptLearningTool.Controllers
         {
             var questions = await _questionRepository.GetQuestionsComprehensiveAsync(Constants.ComprehensiveTestDuration);
             return Ok(questions.ToArray());
+        }
+
+        [HttpPost]
+        [Route("submit")]
+        [Authorize]
+        public async Task<IActionResult> SubmitTest([FromBody] IEnumerable<Answer> submission)
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+
+            await _answerRepository.SaveUserAnswersAsync(user.Id, submission);
+            return Ok();
         }
     }
 }

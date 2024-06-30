@@ -33,6 +33,19 @@ namespace JavascriptLearningTool.ClientServices
             return default;
         }
 
+        private async Task PostAsJsonAsync<T>(string url, T obj, bool isAuthorizationNeeded = false)
+        {
+            if (isAuthorizationNeeded)
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _httpContextAccessor.GetAuthToken());
+            }
+            var response = await _httpClient.PostAsJsonAsync(url, obj);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+            }
+        }
+
         private async Task<T?> PostAsJsonAsync<T, T2>(string url, T2 obj, bool isAuthorizationNeeded = false)
         {
             if (isAuthorizationNeeded)
@@ -78,6 +91,8 @@ namespace JavascriptLearningTool.ClientServices
         public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId) => await GetAsync<IEnumerable<Question>>($"api/tests/{courseId}");
 
         public async Task<IEnumerable<Question>?> GetComprehensiveTestQuestionsAsync() => await GetAsync<IEnumerable<Question>>($"api/tests/{Constants.ComprehensiveTestRoute}");
+
+        public async Task SubmitAnswersAsync(IEnumerable<Answer> answers) => await PostAsJsonAsync("api/tests/submit", answers, true);
         #endregion
     }
 }

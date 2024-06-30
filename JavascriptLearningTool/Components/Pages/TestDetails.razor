@@ -28,6 +28,7 @@
         </div>
     }
     <button class="btn btn-primary" @onclick="SubmitAnswers" disabled="@(SelectedAnswers == null || SelectedAnswers == null || SelectedAnswers.Count != Questions.Length)">Submit</button>
+    <ConfirmDialog @ref="dialog"  />
 }
 else
 {
@@ -39,12 +40,19 @@ else
     [Inject]
     private ApiService ApiService { get; set; }
 
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
     [Parameter]
     public string CourseId { get; set; }
 
     private Question[] Questions { get; set; }
     private Dictionary<int, int> SelectedAnswers { get; set; }
-
+    private ConfirmDialog dialog = default!;
+    private ConfirmDialogOptions _options = new() { AutoFocusYesButton = false, NoButtonText = string.Empty, Dismissable = false, YesButtonText = "OK" };
     protected override async Task OnParametersSetAsync()
     {
         var questions = CourseId switch
@@ -59,14 +67,33 @@ else
 
     private async Task SubmitAnswers()
     {
+
         // Check if the user has selected an answer for each question
-        if (SelectedAnswers.Count != Questions.Length)
+        if (SelectedAnswers.Count != Questions.Length) return;
+
+        var submittedDate = DateTime.Now;
+        var answers = SelectedAnswers.Select(kvp => new Answer
+            {
+                QuestionId = kvp.Key,
+                CorrectOption = Questions.First(q => q.Id == kvp.Key).CorrectOption,
+                SelectedOption = kvp.Value,
+                SubmittedAt = submittedDate
+            }).ToArray();
+        var correctPercentage = answers.Count(a => a.CorrectOption == a.SelectedOption) / (double) Questions.Length * 100;
+
+        var isAuthenticated = await authenticationState.IsAuthenticatedAsync();
+        if (isAuthenticated)
         {
-            // TODO: Show an error message to the user
-            return;
+            await ApiService.SubmitAnswersAsync(answers);
         }
 
-        // TODO: Process the submitted answers
+        var confirmation = await dialog.ShowAsync(
+            title: "Test Results",
+            message1: $"You scored {(int)correctPercentage} %",
+            message2: !isAuthenticated ? "Answers were not submitted because you are not authenticated" : string.Empty,
+            confirmDialogOptions: _options);
+        
+        NavigationManager.NavigateTo("/tests");
     }
 }
 

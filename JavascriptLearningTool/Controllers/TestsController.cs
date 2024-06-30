@@ -1,11 +1,9 @@
-﻿using JavascriptLearningTool.Models;
+﻿using JavascriptLearningTool.Helpers;
+using JavascriptLearningTool.Models;
 using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text;
 
 namespace JavascriptLearningTool.Controllers
@@ -30,11 +28,25 @@ namespace JavascriptLearningTool.Controllers
             return Ok(tests.ToArray());
         }
 
-        [HttpPost]
+
+        [HttpGet]
         [Route("{testId:int}")]
-        public async Task<IActionResult> GetTestQuestions(int testId, [FromBody] int totalQuestions)
+        public async Task<IActionResult> GetTestQuestions(int testId)
         {
-            var questions = await _questionRepository.GetTestQuestionsAsync(testId, totalQuestions);
+            var test = await _testRepository.GetTestAsync(testId);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            var questions = await _questionRepository.GetTestQuestionsAsync(testId, test.Duration);
+            return Ok(questions.ToArray());
+        }
+
+        [HttpGet]
+        [Route(Constants.ComprehensiveTestRoute)]
+        public async Task<IActionResult> GetComprehensiveTestQuestions()
+        {
+            var questions = await _questionRepository.GetQuestionsComprehensiveAsync(Constants.ComprehensiveTestDuration);
             return Ok(questions.ToArray());
         }
     }

@@ -16,7 +16,7 @@ namespace JavascriptLearningTool.ClientServices
             _httpContextAccessor = httpContextAccessor;
         }
 
-        private async Task<T> GetAsync<T>(string url, bool isAuthorizationNeeded = false)
+        private async Task<T?> GetAsync<T>(string url, bool isAuthorizationNeeded = false)
         {
             if (isAuthorizationNeeded)
             {
@@ -33,7 +33,7 @@ namespace JavascriptLearningTool.ClientServices
             return default;
         }
 
-        private async Task<T> PostAsJsonAsync<T, T2>(string url, T2 obj, bool isAuthorizationNeeded = false)
+        private async Task<T?> PostAsJsonAsync<T, T2>(string url, T2 obj, bool isAuthorizationNeeded = false)
         {
             if (isAuthorizationNeeded)
             {
@@ -72,9 +72,12 @@ namespace JavascriptLearningTool.ClientServices
         #endregion
 
         #region Tests
+
         public async Task<IEnumerable<Test>?> GetTestsAsync() => await GetAsync<IEnumerable<Test>>("api/tests");
 
-        public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId, int totalQuestions) => await PostAsJsonAsync<IEnumerable<Question>, int>($"api/tests/{courseId}", totalQuestions);
+        public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId) => await GetAsync<IEnumerable<Question>>($"api/tests/{courseId}");
+
+        public async Task<IEnumerable<Question>?> GetComprehensiveTestQuestionsAsync() => await GetAsync<IEnumerable<Question>>($"api/tests/{Constants.ComprehensiveTestRoute}");
         #endregion
     }
 }

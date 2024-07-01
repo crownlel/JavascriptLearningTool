@@ -7,11 +7,12 @@
 }
 else
 {
+    <Switch @bind-Value="isFocusMode" Label="FocusMode" />
     <div class="row">
         @foreach (var test in CurrentTests)
         {
             <div class="col-md-4 mb-3">
-                <TestCard Test="test" />
+                <TestCard Test="test" OnButtonPress="() => NavigateToTestDetails(test.CourseId)" />
             </div>
         }
     </div>
@@ -19,9 +20,9 @@ else
 
 <div class="row">
     <div class="col-md-4 mb-3">
-        <TestCard Test="@(new Test{ Title = "Comprehensive Test", Duration = Constants.ComprehensiveTestDuration })" />
+        <TestCard Test="@(new Test{ Title = "Comprehensive Test", Duration = Constants.ComprehensiveTestDuration })" OnButtonPress="NavigateToComprehensiveTestDetails" />
     </div>
-    
+
 </div>
 
 @code {
@@ -29,7 +30,12 @@ else
     [Inject]
     private ApiService ApiService { get; set; }
 
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
     private Test[] CurrentTests;
+    private bool isFocusMode = false;
+    private string getFocusRoute => isFocusMode ? "?focused=true" : "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,4 +45,9 @@ else
             CurrentTests = tests.ToArray();
         }
     }
+
+    private void NavigateToTestDetails(int courseId) => NavigationManager.NavigateTo($"/test-details/{courseId}{getFocusRoute}");
+
+    private void NavigateToComprehensiveTestDetails() => NavigationManager.NavigateTo($"/test-details/{Constants.ComprehensiveTestRoute}{getFocusRoute}");
+    
 }

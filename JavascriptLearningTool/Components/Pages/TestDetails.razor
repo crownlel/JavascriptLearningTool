@@ -28,7 +28,7 @@
         </div>
     }
     <button class="btn btn-primary" @onclick="SubmitAnswers" disabled="@(SelectedAnswers == null || SelectedAnswers == null || SelectedAnswers.Count != Questions.Length)">Submit</button>
-    <ConfirmDialog @ref="dialog"  />
+    <ConfirmDialog @ref="dialog" />
 }
 else
 {
@@ -49,6 +49,11 @@ else
     [Parameter]
     public string CourseId { get; set; }
 
+    [SupplyParameterFromQuery]
+    public bool? Focused { get; set; }
+
+    private bool isFocused => Focused.HasValue && Focused.Value;
+
     private Question[] Questions { get; set; }
     private Dictionary<int, int> SelectedAnswers { get; set; }
     private ConfirmDialog dialog = default!;
@@ -57,8 +62,12 @@ else
     {
         var questions = CourseId switch
         {
-            Constants.ComprehensiveTestRoute => await ApiService.GetComprehensiveTestQuestionsAsync(),
-            _ => await ApiService.GetTestQuestionsAsync(int.Parse(CourseId))
+            Constants.ComprehensiveTestRoute => isFocused
+                ? await ApiService.GetComprehensiveTestQuestionsWeightedAsync()
+                : await ApiService.GetComprehensiveTestQuestionsAsync(),
+            _ => isFocused 
+                ? await ApiService.GetTestQuestionsWeightedAsync(int.Parse(CourseId))
+                : await ApiService.GetTestQuestionsAsync(int.Parse(CourseId))
         };
         Questions = questions?.ToArray() ?? Array.Empty<Question>();
         SelectedAnswers = new Dictionary<int, int>();
@@ -79,7 +88,7 @@ else
                 SelectedOption = kvp.Value,
                 SubmittedAt = submittedDate
             }).ToArray();
-        var correctPercentage = answers.Count(a => a.CorrectOption == a.SelectedOption) / (double) Questions.Length * 100;
+        var correctPercentage = answers.Count(a => a.CorrectOption == a.SelectedOption) / (double)Questions.Length * 100;
 
         var isAuthenticated = await authenticationState.IsAuthenticatedAsync();
         if (isAuthenticated)
@@ -92,7 +101,7 @@ else
             message1: $"You scored {(int)correctPercentage} %",
             message2: !isAuthenticated ? "Answers were not submitted because you are not authenticated" : string.Empty,
             confirmDialogOptions: _options);
-        
+
         NavigationManager.NavigateTo("/tests");
     }
 }

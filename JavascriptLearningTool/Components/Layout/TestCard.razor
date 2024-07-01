@@ -14,18 +14,11 @@
     [Parameter]
     public Test Test { get; set; }
 
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    [Parameter]
+    public Action OnButtonPress { get; set; }
 
     private void NavigateToTestDetails()
     {
-        if (Test.Title == Constants.ComprehensiveTestTitle)
-        {
-            NavigationManager.NavigateTo($"/test-details/{Constants.ComprehensiveTestRoute}");
-        }
-        else
-        {
-            NavigationManager.NavigateTo($"/test-details/{Test.CourseId}");
-        }
+        OnButtonPress?.Invoke();
     }
 }

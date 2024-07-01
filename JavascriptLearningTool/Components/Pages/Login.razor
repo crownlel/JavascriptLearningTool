@@ -51,12 +51,11 @@
 
     private async Task HandleValidSubmit()
     {
-        if (System.Diagnostics.Debugger.IsAttached)
-        {
-            loginModel.Username = "admin";
-            loginModel.Password = "password";
-
-        }
+        // if (System.Diagnostics.Debugger.IsAttached)
+        // {
+        //     loginModel.Username = "admin";
+        //     loginModel.Password = "password";
+        // }
 
         var token = await ApiService.GetAuthTokenAsync(loginModel);
         if (token is not null)

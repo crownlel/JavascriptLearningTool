@@ -17,7 +17,7 @@ else
     <div class="row">
         <h4> Tests</h4>
         <BarChart @ref="questionCompletionChart" Width="700" Height="300" />
-
+        <PieChart @ref="questionCountPie" Width="700" Height="300" />"
     </div>
 }
 @code {
@@ -40,6 +40,8 @@ else
         };
 
     private PieChart questionCountPie;
+    private ChartData questionCountPieData;
+    private PieChartOptions questionCountPieOptions = new() { Responsive = true };
 
     [Inject]
     public ApiService ApiService { get; set; }
@@ -48,9 +50,13 @@ else
     {
         courseChartOptions.Scales.X!.Title = new() { Display = true, Text = "Pages" };
         courseChartOptions.Scales.Y!.Title = new() { Display = true, Text = "Minutes" };
+
         questionChartOptions.Scales.X!.Title = new() { Display = true, Text = "Completion Percentage" };
         questionChartOptions.Scales.X!.Max = 100;
         questionChartOptions.Scales.Y!.Title = new() { Display = true, Text = "Courses" };
+
+        questionCountPieOptions.Plugins.Title!.Text = "Questions Answered";
+        questionCountPieOptions.Plugins.Title!.Display = true;
         await LoadCartsAsync();
     }
 
@@ -67,6 +73,7 @@ else
                 CreateCourseChart(course, courseGroups.FirstOrDefault(g => g.Key == course.Id)?.ToArray() ?? Array.Empty<PageActivity>());
             }
             CreateQuestionChart(courses, questionProgress.ToArray());
+            CreateQuestionCountChart(courses, questionProgress.ToArray());
             await Task.Delay(250);
             userCourses = courses;
             StateHasChanged();
@@ -83,6 +90,7 @@ else
         }
 
         await questionCompletionChart.InitializeAsync(questionChartData, questionChartOptions);
+        await questionCountPie.InitializeAsync(questionCountPieData, questionCountPieOptions);
     }
 
     private void CreateCourseChart(Course course, PageActivity[] pageActivities)
@@ -133,6 +141,29 @@ else
                         BackgroundColor = new List<string> { c.ToRgbString() },
                         BorderColor = new List<string> { c.ToRgbString() },
                         BorderWidth = new List<double> { 0 },
+                    }
+                }
+            };
+    }
+
+    private void CreateQuestionCountChart(Course[] courses, QuestionProgress[] questionProgress)
+    {
+        var colorIdx = courses.Length + 1;
+        var c1 = ColorUtility.CategoricalTwelveColors[colorIdx % 11].ToColor();
+        var c2 = ColorUtility.CategoricalTwelveColors[(colorIdx + 1) % 11].ToColor();
+
+        questionCountPie = new();
+        questionCountPieData = new ChartData
+            {
+                Labels = courses.Select(c => $"{c.Name}").ToList(),
+                Datasets = new List<IChartDataset>
+                {
+                    new PieChartDataset
+                    {
+                        Data = courses.Select(c => questionProgress.Where(qp => qp.CourseId == c.Id).Sum(qp => (double)qp.TotalAnswers)).ToList(),
+                        BackgroundColor = new List<string> { c1.ToRgbString(), c2.ToRgbString() },
+                        BorderColor = new List<string> { c1.ToRgbString(), c2.ToRgbString() },
+                        BorderWidth = new List<double> { 0 }
                     }
                 }
             };

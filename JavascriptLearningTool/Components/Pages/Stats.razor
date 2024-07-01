@@ -8,24 +8,49 @@
 else
 {
     <div class="row">
+        <h4> Courses</h4>
         @foreach (var course in userCourses)
         {
-            <BarChart @ref="_charts[course.Id]" Width="500" Height="300" />
+            <BarChart @ref="_charts[course.Id]" Width="700" Height="300" />
         }
+    </div>
+    <div class="row">
+        <h4> Tests</h4>
+        <BarChart @ref="questionCompletionChart" Width="700" Height="300" />
+
     </div>
 }
 @code {
-    private BarChartOptions barChartOptions = new() { Responsive = true, Interaction = new Interaction { Mode = InteractionMode.Index } };
-
+    private BarChartOptions courseChartOptions = new()
+        {
+            Responsive = true,
+            Interaction = new Interaction { Mode = InteractionMode.Index }
+        };
     private Course[] userCourses = default!;
     private Dictionary<int, BarChart> _charts = new();
     private Dictionary<int, ChartData> _chartData = new();
+
+    private BarChart questionCompletionChart;
+    private ChartData questionChartData;
+    private BarChartOptions questionChartOptions = new()
+        {
+            Responsive = true,
+            Interaction = new Interaction { Mode = InteractionMode.Y },
+            IndexAxis = "y"
+        };
+
+    private PieChart questionCountPie;
 
     [Inject]
     public ApiService ApiService { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        courseChartOptions.Scales.X!.Title = new() { Display = true, Text = "Pages" };
+        courseChartOptions.Scales.Y!.Title = new() { Display = true, Text = "Minutes" };
+        questionChartOptions.Scales.X!.Title = new() { Display = true, Text = "Completion Percentage" };
+        questionChartOptions.Scales.X!.Max = 100;
+        questionChartOptions.Scales.Y!.Title = new() { Display = true, Text = "Courses" };
         await LoadCartsAsync();
     }
 
@@ -33,14 +58,16 @@ else
     {
         var courses = await ApiService.GetUserCourses();
         var pageActivities = await ApiService.GetAllUserPageStatsGroupedAsync();
-        if (courses != null && pageActivities != null)
+        var questionProgress = await ApiService.GetQuestionProgressAsync();
+        if (courses != null && pageActivities != null && questionProgress != null)
         {
             var courseGroups = pageActivities.GroupBy(pa => pa.CourseId);
             foreach (var course in courses)
             {
-                CreateChart(course, courseGroups.FirstOrDefault(g => g.Key == course.Id)?.ToArray() ?? Array.Empty<PageActivity>());
+                CreateCourseChart(course, courseGroups.FirstOrDefault(g => g.Key == course.Id)?.ToArray() ?? Array.Empty<PageActivity>());
             }
-            await Task.Delay(500);
+            CreateQuestionChart(courses, questionProgress.ToArray());
+            await Task.Delay(250);
             userCourses = courses;
             StateHasChanged();
             await InitializeChartsAsync();
@@ -52,11 +79,13 @@ else
         foreach (var chartKvP in _charts)
         {
             var data = _chartData[chartKvP.Key];
-            await chartKvP.Value.InitializeAsync(data, barChartOptions);
+            await chartKvP.Value.InitializeAsync(data, courseChartOptions);
         }
+
+        await questionCompletionChart.InitializeAsync(questionChartData, questionChartOptions);
     }
 
-    public void CreateChart(Course course, PageActivity[] pageActivities)
+    private void CreateCourseChart(Course course, PageActivity[] pageActivities)
     {
         var c = ColorUtility.CategoricalTwelveColors[course.Id - 1 % 11].ToColor();
         var pages = Enumerable.Range(1, course.Pages).ToArray();
@@ -69,11 +98,37 @@ else
                 {
                     new BarChartDataset
                     {
-                        Label = "Minutes spent on Page",
+                        Label = $"Course: {course.Name}",
                         Data = pages.Select(p =>
                         {
                             var secondsSpent = pageActivities.FirstOrDefault(pa => pa.PageId == p)?.SecondsSpent ?? 0;
                             return (double)secondsSpent / 60;
+                        }).ToList(),
+                        BackgroundColor = new List<string> { c.ToRgbString() },
+                        BorderColor = new List<string> { c.ToRgbString() },
+                        BorderWidth = new List<double> { 0 },
+                    }
+                }
+            };
+    }
+
+    private void CreateQuestionChart(Course[] courses, QuestionProgress[] questionProgress)
+    {
+        var c = ColorUtility.CategoricalTwelveColors[courses.Length % 11].ToColor();
+
+        questionCompletionChart = new();
+        questionChartData = new ChartData
+            {
+                Labels = courses.Select(c => $"{c.Name}").ToList(),
+                Datasets = new List<IChartDataset>
+                {
+                    new BarChartDataset
+                    {
+                        Label = "Question Completion",
+                        Data = courses.Select(c =>
+                        {
+                            var courseQuestions = questionProgress.Where(qp => qp.CourseId == c.Id).ToArray();
+                            return (double)courseQuestions.Count(x => x.IsCompleted) / courseQuestions.Length * 100;
                         }).ToList(),
                         BackgroundColor = new List<string> { c.ToRgbString() },
                         BorderColor = new List<string> { c.ToRgbString() },

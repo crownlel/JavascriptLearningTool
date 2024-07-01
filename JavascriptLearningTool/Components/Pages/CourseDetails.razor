@@ -14,7 +14,12 @@
         }
         else
         {
-            <Spinner Color="SpinnerColor.Primary" />
+            <PlaceholderContainer Animation="PlaceholderAnimation.Glow">
+                <Placeholder Width="PlaceholderWidth.Col7" />
+                <Placeholder Width="PlaceholderWidth.Col9" />
+                <Placeholder Width="PlaceholderWidth.Col6" />
+                <Placeholder Width="PlaceholderWidth.Col7" />
+            </PlaceholderContainer>
         }
 
     </div>
@@ -59,6 +64,7 @@
         // Track time spend on each page
         var secondsSpentOnPage = (int)_stopwatch.Elapsed.TotalSeconds;
         var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
+        await Task.Delay(250);
         pageContent = page?.Content != null ? new MarkupString(page.Content) : null;
         _stopwatch.Restart();
     }

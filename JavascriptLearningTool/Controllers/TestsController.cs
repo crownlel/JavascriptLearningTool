@@ -47,10 +47,41 @@ namespace JavascriptLearningTool.Controllers
         }
 
         [HttpGet]
+        [Route("{testId:int}/weighted")]
+        [Authorize]
+        public async Task<IActionResult> GetTestQuestionsWeighted(int testId)
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+            var test = await _testRepository.GetTestAsync(testId);
+            if (test == null)
+            {
+                return NotFound();
+            }
+            var questions = await _questionRepository.GetQuestionsWeightedAsync(user.Id, test.Duration, testId);
+            return Ok(questions.ToArray());
+        }
+
+        [HttpGet]
         [Route(Constants.ComprehensiveTestRoute)]
         public async Task<IActionResult> GetComprehensiveTestQuestions()
         {
             var questions = await _questionRepository.GetQuestionsComprehensiveAsync(Constants.ComprehensiveTestDuration);
+            return Ok(questions.ToArray());
+        }
+
+        [HttpGet]
+        [Route($"{Constants.ComprehensiveTestRoute}/weighted")]
+        [Authorize]
+        public async Task<IActionResult> GetComprehensiveTestQuestionsWeighted()
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+            var questions = await _questionRepository.GetQuestionsWeightedAsync(user.Id, Constants.ComprehensiveTestDuration);
             return Ok(questions.ToArray());
         }
 
@@ -66,6 +97,21 @@ namespace JavascriptLearningTool.Controllers
 
             await _answerRepository.SaveUserAnswersAsync(user.Id, submission);
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("progress")]
+        [Authorize]
+        public async Task<IActionResult> GetQuestionProgress()
+        {
+
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+
+            var questions = await _questionRepository.GetQuestionProgressAsync(user.Id);
+            return Ok(questions);
         }
     }
 }

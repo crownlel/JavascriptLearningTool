@@ -89,10 +89,14 @@ namespace JavascriptLearningTool.ClientServices
         public async Task<IEnumerable<Test>?> GetTestsAsync() => await GetAsync<IEnumerable<Test>>("api/tests");
 
         public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId) => await GetAsync<IEnumerable<Question>>($"api/tests/{courseId}");
+        public async Task<IEnumerable<Question>?> GetTestQuestionsWeightedAsync(int courseId) => await GetAsync<IEnumerable<Question>>($"api/tests/{courseId}/weighted", true);
 
         public async Task<IEnumerable<Question>?> GetComprehensiveTestQuestionsAsync() => await GetAsync<IEnumerable<Question>>($"api/tests/{Constants.ComprehensiveTestRoute}");
+        public async Task<IEnumerable<Question>?> GetComprehensiveTestQuestionsWeightedAsync() => await GetAsync<IEnumerable<Question>>($"api/tests/{Constants.ComprehensiveTestRoute}/weighted, true");
 
         public async Task SubmitAnswersAsync(IEnumerable<Answer> answers) => await PostAsJsonAsync("api/tests/submit", answers, true);
+
+        public async Task<IEnumerable<QuestionProgress>?> GetQuestionProgressAsync() => await GetAsync<IEnumerable<QuestionProgress>>("api/tests/progress", true);
         #endregion
     }
 }

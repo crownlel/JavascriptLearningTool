@@ -1,6 +1,9 @@
+SET IDENTITY_INSERT [dbo].[Courses] ON;
 INSERT [dbo].[Courses] ([Id], [Name], [Pages], [Description]) VALUES (1, N'Introduction to JavaScript', 10, N'Introduction to JavaScript and its importance in web development.');
 INSERT [dbo].[Courses] ([Id], [Name], [Pages], [Description]) VALUES (2, N'Basic Concepts of JavaScript', 10, N'Teaching the basic concepts of JavaScript such as variables, data types, functions');
+SET IDENTITY_INSERT [dbo].[Courses] OFF;
 
+SET IDENTITY_INSERT [dbo].[Questions] ON;
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (1, N'What is JavaScript primarily used for?', N'Creating server-side applications', N'Creating dynamic and interactive content on websites', N'Designing web pages', 1, 2);
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (2, N'Who created JavaScript?', N'Brendan Eich', N'Tim Berners-Lee', N'Linus Torvalds', 1, 1);
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (3, N'Which of the following is NOT a feature of JavaScript?', N'Client-side execution', N'Manipulating the DOM', N'Compiling to machine code', 1, 3);
@@ -21,7 +24,10 @@ INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [Cours
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (18, N'Which method is used to add an element to the end of an array?', N'push()', N'pop()', N'shift()', 2, 1);
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (19, N'What does the ''this'' keyword refer to in an arrow function?', N'The global object', N'The object that owns the method', N'The lexical scope', 2, 3);
 INSERT [dbo].[Questions] ([Id], [Title], [Option1], [Option2], [Option3], [CourseId], [CorrectOption]) VALUES (20, N'Which statement is used to exit a loop prematurely?', N'break', N'exit', N'stop', 2, 1);
+SET IDENTITY_INSERT [dbo].[Questions] OFF;
 
+SET IDENTITY_INSERT [dbo].[Users] ON;
 INSERT [dbo].[Users] ([Id], [Username], [Password]) VALUES (1, N'admin', N'AJgIakOvZFeOpaEH+vv+eN9T7KJhSMJ8TAkezdUBVYmZl60ETmUUU42pPJyrtYwpxw==');
 INSERT [dbo].[Users] ([Id], [Username], [Password]) VALUES (2, N'user1', N'AJS5ifMnHNa/HJlFfwAYyIh6t5Ut1ASjbrlJPtbeZG1h1cEt+IpTXT5gr02jFoZl9Q==');
 INSERT [dbo].[Users] ([Id], [Username], [Password]) VALUES (3, N'user2', N'AANIEyVhdErW23cN/kuH8bkjmPR3RD1ij/htcIBw6Yb0OF2aqfXmbKcRBOFzBigLOA==');
+SET IDENTITY_INSERT [dbo].[Users] OFF;

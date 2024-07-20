@@ -6,6 +6,8 @@ using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting.Server.Features;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using System.Data;
@@ -84,7 +86,12 @@ namespace JavascriptLearningTool
             services.AddBlazorBootstrap();
             services.AddScoped<UserAuthenticationStateProvider>();
             services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
-            services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7120") });
+            services.AddScoped(sp => 
+            {
+                var serverAddresses = sp.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>();
+                var address = serverAddresses?.Addresses.FirstOrDefault(a => a.Contains("https")) ?? serverAddresses?.Addresses.FirstOrDefault() ?? "https://localhost:7120";
+                return new HttpClient { BaseAddress = new Uri(address) };
+            });
 
             services.AddAuthentication(opt =>
             {

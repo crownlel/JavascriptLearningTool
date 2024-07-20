@@ -19,8 +19,10 @@
         </div>
 
         <div>
-            <h3>Notifications</h3>
-            @if(_notifications != null){
+            
+            @if(_notifications != null)
+            {
+                <h3>Notifications <Badge> @_notifications.Count</Badge></h3>
                 <ul class="list-group">
                     @foreach (var not in _notifications)
                     {
@@ -28,7 +30,11 @@
                     }
                 </ul>
             }
-            
+            else
+            {
+                <h3>Notifications</h3>
+            }
+
         </div>
 
         <div style="position: fixed; bottom: 20px; right: 20px;">

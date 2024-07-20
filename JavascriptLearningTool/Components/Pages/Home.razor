@@ -14,9 +14,23 @@
         <h1>Hello, @context.User?.Identity?.Name</h1>
 
         <div>
-            <h4>Daily Progress</h4>
+            <h3>Daily Progress</h3>
             <BarChart @ref="_dailyChart" Width="1100" Height="400" />
         </div>
+
+        <div>
+            <h3>Notifications</h3>
+            @if(_notifications != null){
+                <ul class="list-group">
+                    @foreach (var not in _notifications)
+                    {
+                        <li class="list-group-item">@not</li>
+                    }
+                </ul>
+            }
+            
+        </div>
+
         <div style="position: fixed; bottom: 20px; right: 20px;">
             <button class="btn btn-primary" @onclick="Logout" href>Logout</button>
         </div>
@@ -38,6 +52,8 @@
             Interaction = new Interaction { Mode = InteractionMode.Index }
         };
 
+    private List<MarkupString>? _notifications;
+
     protected override async Task OnInitializedAsync()
     {
         var isAuthenticated = await authenticationState.IsAuthenticatedAsync();
@@ -49,9 +65,49 @@
 
             // Get stats
             await LoadCartsAsync();
+            await LoadNotificationsAsync();
         }
 
         await base.OnInitializedAsync();
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        // Calculate user progress
+        var questionProgress = await ApiService.GetQuestionProgressAsync();
+        if (questionProgress is null) return;
+
+        var courseProgress = questionProgress.GroupBy(x => x.CourseId)
+            .OrderBy(x => x.Key)
+            .ToDictionary(x => x.Key, x => (decimal)x.Count(y => y.IsCompleted) / x.Count() * 100);
+        var notifications = new List<string>();
+        if (courseProgress.All(kvp => kvp.Value == 100))
+        {
+            // Show courses completed message
+            notifications.Add(@"Congratulations! You have completed all courses. <br>
+                                You can look up those external sources <br>
+                                <a href=""https://www.w3schools.com/js"" target=""_blank"">w3schools</a> <br>
+                                <a href=""https://www.learn-js.org/"" target=""_blank"">learn-js.org</a>");
+        }
+        else
+        {
+            var courses = await ApiService.GetUserCourses();
+            var notCompletedCourses = courseProgress.Where(kvp => kvp.Value < 100).Select(kvp => kvp.Key); 
+            if (notCompletedCourses.Any())
+            {
+                notifications.Add($"You have not completed the following courses:<br>" + string.Join(", ", courses.Where(c => notCompletedCourses.Contains(c.Id)).Select(c => c.Name)));
+
+                var lowCourses = courseProgress.Where(kvp => kvp.Value < 60).Select(kvp => kvp.Key);
+                if (lowCourses.Any())
+                {
+                    notifications.Add("You are struggling in the following courses:<br>" + string.Join(", ", courses.Where(c => lowCourses.Contains(c.Id)).Select(c => c.Name)));
+                }
+
+                notifications.Add("Hint: You can use focus mode toggle to get more personalized test questions");
+            }
+        }
+
+        _notifications = notifications.Select(n => new MarkupString(n)).ToList();
     }
 
     private async Task LoadCartsAsync()

@@ -1,4 +1,5 @@
-﻿using JavascriptLearningTool.Models;
+﻿using JavascriptLearningTool.Helpers;
+using JavascriptLearningTool.Models;
 using JavascriptLearningTool.Repositories;
 using JavascriptLearningTool.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -106,6 +107,26 @@ namespace JavascriptLearningTool.Controllers
                 .OrderBy(pa => pa.CourseId)
                 .ThenBy(pa => pa.PageId);
             return Ok(groupedActivities.ToArray());
+        }
+
+        [HttpGet]
+        [Authorize]
+        [Route("stats/daily")]
+        public async Task<IActionResult> GetDailyActivitiesAsync()
+        {
+            var username = User!.Identity!.Name!;
+            var user = await _userRepository.GetUserByUsernameAsync(username);
+            if (user == null)
+                return BadRequest("User not found");
+
+            var dailyActivities = await _userProgressRepository.GetDailyActivitiesAsync(user.Id, Constants.DailyStatsDays);
+            foreach (var day in Enumerable.Range(0, Constants.DailyStatsDays)
+                .Select(i => DateOnly.FromDateTime(DateTime.Now.Date.AddDays(-i))))
+            {
+                dailyActivities.TryAdd(day, 0);
+            }
+            
+            return Ok(dailyActivities.OrderBy(da => da.Key).ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
         }
     }
 }

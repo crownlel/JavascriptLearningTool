@@ -7,26 +7,81 @@
 
 <AuthorizeView>
     <NotAuthorized>
-        <h1>Hello, world</h1>
+        <h1>Hello</h1>
+        <p>You are not logged in.</p>
     </NotAuthorized>
     <Authorized>
         <h1>Hello, @context.User?.Identity?.Name</h1>
-    </Authorized>
-</AuthorizeView>
 
-Welcome to your new app.
-
-<AuthorizeView>
-    <NotAuthorized>
-        <p>You are not logged in.</p
-    </NotAuthorized>
-    <Authorized>
+        <div>
+            <h4>Daily Progress</h4>
+            <BarChart @ref="_dailyChart" Width="1100" Height="400" />
+        </div>
         <div style="position: fixed; bottom: 20px; right: 20px;">
             <button class="btn btn-primary" @onclick="Logout" href>Logout</button>
         </div>
     </Authorized>
 </AuthorizeView>
 @code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+    [Inject]
+    public ApiService ApiService { get; set; }
+
+    private BarChart _dailyChart;
+    private ChartData _chartData;
+    private BarChartOptions _chartOptions = new()
+        {
+            Responsive = true,
+            Interaction = new Interaction { Mode = InteractionMode.Index }
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var isAuthenticated = await authenticationState.IsAuthenticatedAsync();
+        if (isAuthenticated)
+        {
+            // Initialize chart options
+            _chartOptions.Scales.X!.Title = new() { Display = true, Text = "Days" };
+            _chartOptions.Scales.Y!.Title = new() { Display = true, Text = "Minutes" };
+
+            // Get stats
+            await LoadCartsAsync();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task LoadCartsAsync()
+    {
+        // Get data
+        var dailyActivities = await ApiService.GetDailyActivitiesAsync();
+        if (dailyActivities is null) return;
+
+        // Create chart data
+        var c = ColorUtility.CategoricalTwelveColors[2].ToColor();
+        _chartData = new ChartData
+            {
+                Labels = dailyActivities.Select(x => x.Key.ToShortDateString()).ToList(),
+                Datasets = new List<IChartDataset>
+                {
+                    new BarChartDataset
+                    {
+                        Label = "Daily minutes spent on Courses",
+                        Data = dailyActivities.Select(x => (double)x.Value / 60).ToList(),
+                        BackgroundColor = [ c.ToRgbString() ],
+                        BorderColor = [ c.ToRgbString() ],
+                        BorderWidth = [1]
+                    }
+                }
+            };
+
+        // Initialize chart data
+        StateHasChanged();
+        await _dailyChart.InitializeAsync(_chartData, _chartOptions);
+    }
 
     private void Logout()
     {

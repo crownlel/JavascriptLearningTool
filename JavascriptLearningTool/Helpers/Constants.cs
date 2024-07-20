@@ -7,5 +7,6 @@
         public const string ComprehensiveTestTitle = "Comprehensive Test";
         public const int ComprehensiveTestDuration = 12;
         public const int CourseTestDuration = 5;
+        public const int DailyStatsDays = 30;
     }
 }

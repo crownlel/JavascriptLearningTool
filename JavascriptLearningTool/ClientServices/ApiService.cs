@@ -82,6 +82,8 @@ namespace JavascriptLearningTool.ClientServices
             => await PostAsJsonAsync<CoursePage, int>($"api/courses/{courseId}/page/{pageId}", secondsSpentOnPage, true);
 
         public async Task<IEnumerable<PageActivity>?> GetAllUserPageStatsGroupedAsync() => await GetAsync<IEnumerable<PageActivity>>("api/courses/stats", true);
+
+        public async Task<Dictionary<DateOnly, int>?> GetDailyActivitiesAsync() => await GetAsync<Dictionary<DateOnly, int>>("api/courses/stats/daily", true);
         #endregion
 
         #region Tests

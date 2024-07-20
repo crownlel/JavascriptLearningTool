@@ -104,6 +104,22 @@ namespace JavascriptLearningTool.Repositories
             return await connection.QueryAsync<PageActivity>(sql, new { UserId = userId });
         }
 
+        public async Task<Dictionary<DateOnly, int>> GetDailyActivitiesAsync(int userId, int dailyStatsDays)
+        {
+            using var connection = _connectionFactory.OpenConnection();
+            var sql = @"select cast(Timestamp as date) as Date, sum(SecondsSpent) as SecondsSpent
+                        from PageActivities
+                        where UserId = @UserId
+                        and Timestamp > @Date
+                        group by cast(Timestamp as date)
+                        order by Date desc;";
+            var date = DateTime.Now.Date.AddDays(-dailyStatsDays);
+            var result = await connection.QueryAsync(sql, new { UserId = userId, Date = date });
+            var dic = result.Select(r => new { Date = (DateTime)r.Date, SecondsSpent = (int)r.SecondsSpent })
+                .OrderBy(r => r.Date)
+                .ToDictionary(r => DateOnly.FromDateTime(r.Date), r => r.SecondsSpent);
+            return dic;
+        }
     }
 
 }

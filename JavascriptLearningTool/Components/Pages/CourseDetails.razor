@@ -64,7 +64,6 @@
         // Track time spend on each page
         var secondsSpentOnPage = (int)_stopwatch.Elapsed.TotalSeconds;
         var page = await ApiService.GetCoursePageAsync(CourseId, currentPageId, secondsSpentOnPage);
-        await Task.Delay(250);
         pageContent = page?.Content != null ? new MarkupString(page.Content) : null;
         _stopwatch.Restart();
     }

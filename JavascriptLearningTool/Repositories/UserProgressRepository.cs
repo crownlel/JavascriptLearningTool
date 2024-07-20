@@ -20,12 +20,6 @@ namespace JavascriptLearningTool.Repositories
                 new { UserId = userId, CourseId = courseId });
         }
 
-        public async Task<IEnumerable<UserProgress>> GetAllUserProgressesAsync()
-        {
-            using var connection = _connectionFactory.OpenConnection();
-            return await connection.QueryAsync<UserProgress>("SELECT * FROM UserProgresses");
-        }
-
         public async Task AddUserProgressAsync(UserProgress progress)
         {
             using var connection = _connectionFactory.OpenConnection();
@@ -50,13 +44,6 @@ namespace JavascriptLearningTool.Repositories
                 progress.LastPage,
                 progress.LastUpdated
             });
-        }
-
-        public async Task DeleteUserProgressAsync(int userId, int courseId)
-        {
-            using var connection = _connectionFactory.OpenConnection();
-            var sql = "DELETE FROM UserProgresses WHERE UserId = @UserId AND CourseId = @CourseId";
-            await connection.ExecuteAsync(sql, new { UserId = userId, CourseId = courseId });
         }
 
         public async Task AddPageActivity(int userId, int courseId, int pageId, int secondsSpentOnPage)

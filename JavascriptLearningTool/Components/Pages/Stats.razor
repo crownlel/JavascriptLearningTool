@@ -74,7 +74,6 @@ else
             }
             CreateQuestionChart(courses, questionProgress.ToArray());
             CreateQuestionCountChart(courses, questionProgress.ToArray());
-            await Task.Delay(250);
             userCourses = courses;
             StateHasChanged();
             await InitializeChartsAsync();

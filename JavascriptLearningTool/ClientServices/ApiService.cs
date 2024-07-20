@@ -87,7 +87,6 @@ namespace JavascriptLearningTool.ClientServices
         #endregion
 
         #region Tests
-
         public async Task<IEnumerable<Test>?> GetTestsAsync() => await GetAsync<IEnumerable<Test>>("api/tests");
 
         public async Task<IEnumerable<Question>?> GetTestQuestionsAsync(int courseId) => await GetAsync<IEnumerable<Question>>($"api/tests/{courseId}");

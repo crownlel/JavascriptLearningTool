@@ -7,7 +7,5 @@
         public int PageId { get; set; }
         public DateTime Timestamp { get; set; }
         public int SecondsSpent { get; set; }
-
-        public TimeSpan TimeSpent => TimeSpan.FromSeconds(SecondsSpent);
     }
 }

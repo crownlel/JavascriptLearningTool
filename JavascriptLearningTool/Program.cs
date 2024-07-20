@@ -49,7 +49,9 @@ namespace JavascriptLearningTool
             app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
-            //begin SetString() hack
+
+            // This is used to fix httpContextAccessor.HttpContext?.Session.SetString() blazor bug
+            // begin SetString() hack
             app.Use(async delegate (HttpContext Context, Func<Task> Next)
             {
                 //this throwaway session variable will "prime" the SetString() method
@@ -65,10 +67,19 @@ namespace JavascriptLearningTool
         private static void RegisterServices(IServiceCollection services, IConfigurationManager configurationManager)
         {
             services.AddControllers();
+            services.AddBlazorBootstrap();
 
             // Services
             services.AddScoped<UserService>();
             services.AddScoped<ApiService>();
+            services.AddScoped<UserAuthenticationStateProvider>();
+            services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
+            services.AddScoped(sp =>
+            {
+                var serverAddresses = sp.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>();
+                var address = serverAddresses?.Addresses.FirstOrDefault(a => a.Contains("https")) ?? serverAddresses?.Addresses.FirstOrDefault() ?? "https://localhost:7120";
+                return new HttpClient { BaseAddress = new Uri(address) };
+            });
 
             // Repositories
             services.AddScoped<UserRepository>();
@@ -83,16 +94,8 @@ namespace JavascriptLearningTool
             services.AddTransient<IDbConnection>(sp => new SqlConnection(configurationManager.GetConnectionString("DefaultConnection")));
             services.AddSingleton<DbConnectionFactory>();
 
-            services.AddBlazorBootstrap();
-            services.AddScoped<UserAuthenticationStateProvider>();
-            services.AddScoped<AuthenticationStateProvider, UserAuthenticationStateProvider>();
-            services.AddScoped(sp => 
-            {
-                var serverAddresses = sp.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>();
-                var address = serverAddresses?.Addresses.FirstOrDefault(a => a.Contains("https")) ?? serverAddresses?.Addresses.FirstOrDefault() ?? "https://localhost:7120";
-                return new HttpClient { BaseAddress = new Uri(address) };
-            });
 
+            // Setup JWT authentication
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -117,6 +120,7 @@ namespace JavascriptLearningTool
                 Audience = configurationManager["Jwt:ValidAudience"],
                 Key = configurationManager["Jwt:Secret"]
             });
+
             services.AddCascadingAuthenticationState();
             services.AddAuthorization();
             services.AddHttpContextAccessor();

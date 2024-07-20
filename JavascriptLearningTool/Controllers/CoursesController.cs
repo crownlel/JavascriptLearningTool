@@ -30,7 +30,6 @@ namespace JavascriptLearningTool.Controllers
 
         [HttpGet]
         [Authorize]
-        //[Route("courses")]
         public async Task<IActionResult> GetUserCourses()
         {
             var username = User!.Identity!.Name!;
